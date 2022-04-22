@@ -1,0 +1,47 @@
+CAPI=2:
+# Copyright lowRISC contributors.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+name: "lowrisc:dv:awsf1"
+description: "Interfaces for AWS F1 FPGAs."
+filesets:
+  files_rtl:
+    depend:
+      - lowrisc:dv:awsf1_intf
+    files:
+      - axi_slv_defines.vh:
+          is_include_file: true
+      - cl_dut_defines.vh:
+          is_include_file: true
+      - cl_id_defines.vh:
+          is_include_file: true
+      - cl_pci_common_defines.vh:
+          is_include_file: true
+      - cl_pcir_mstr_defines.vh:
+          is_include_file: true
+      - cl_pciw_mstr_defines.vh:
+          is_include_file: true
+      - dut.vh:
+          is_include_file: true
+      - cl_bus_pkg.sv
+      - cl_ocl_slv.sv
+      - cl_pcir_mstr.sv
+      - cl_pciw_mstr.sv
+      - read_port.sv
+      - streamx.sv
+      - write_port.sv
+    file_type: systemVerilogSource
+
+  files_constraints:
+    files:
+      - cl_clocks_aws.xdc
+      - cl_pnr_user.xdc
+      - cl_synth_user.xdc
+    file_type: xdc
+
+targets:
+  default:
+    filesets:
+      - files_rtl
+      - files_constraints

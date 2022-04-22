@@ -210,6 +210,69 @@ def cw310_params(
     )
     return kwargs
 
+def awsf1_params(
+        # Base Parameters
+        args = _BASE_PARAMS["args"] + [
+            "--exec=\"load-bitstream --rom-kind={rom_kind} $(location {bitstream})\"",
+            "--exec=\"bootstrap $(location {flash})\"",
+            "console",
+            "--exit-failure=" + shell.quote(_EXIT_FAILURE),
+            "--exit-success=" + shell.quote(_EXIT_SUCCESS),
+            "--timeout=3600s",
+        ],
+        data = _BASE_PARAMS["data"] + ["{bitstream}"],
+        local = _BASE_PARAMS["local"],
+        otp = _BASE_PARAMS["otp"],
+        rom = _BASE_PARAMS["rom"].format("fpga_awsf1"),
+        tags = _BASE_PARAMS["tags"],
+        test_runner = _BASE_PARAMS["test_runner"],
+        # AWS F1-specific Parameters
+        bitstream = "@//hw/bitstream:test_rom",
+        rom_kind = None,
+        # None
+        timeout = "short",
+        **kwargs):
+    """A macro to create AWS F1 parameters for OpenTitan functional tests.
+
+    This macro emits a dictionary of parameters which are pasted into the
+    AWS F1 FPGA specific test rule.
+
+    Args:
+        @param args: Extra arguments to pass the test runner `opentitantool`.
+        @param data: Data dependencies of the test.
+        @param local: Whether the test should be run locally without sandboxing.
+        @param otp: The OTP image to use.
+        @param rom: The ROM image to use.
+        @param tags: The test tags to apply to the test rule.
+        @param timeout: The timeout to apply to the test rule.
+    """
+    required_args = [
+        "--rcfile=",
+        "--logging=info",
+        "--interface=awsf1",
+        "--conf=sw/host/opentitantool/config/opentitan_awsf1.json",
+    ]
+    required_data = [
+        "@//sw/host/opentitantool:test_resources",
+    ]
+    required_tags = [
+        "awsf1",
+        "exclusive",
+    ]
+    kwargs.update(
+        args = required_args + args,
+        data = required_data + data,
+        local = local,
+        otp = otp,
+        rom = rom,
+        tags = required_tags + tags,
+        test_runner = test_runner,
+        timeout = timeout,
+        bitstream = bitstream,
+        rom_kind = rom_kind,
+    )
+    return kwargs
+
 def _format_list(param_name, list1, datadict, **kwargs):
     """Concatenate and format list items.
 
@@ -227,7 +290,7 @@ def _format_list(param_name, list1, datadict, **kwargs):
 
 def opentitan_functest(
         name,
-        targets = ["dv", "verilator", "cw310"],
+        targets = ["dv", "verilator", "cw310", "awsf1"],
         args = [],
         data = [],
         test_in_rom = False,
@@ -237,6 +300,7 @@ def opentitan_functest(
         dv = None,
         verilator = None,
         cw310 = None,
+        awsf1 = None,
         test_binary = None,
         **kwargs):
     """A helper macro for generating OpenTitan functional tests.
@@ -264,6 +328,7 @@ def opentitan_functest(
       @param dv: DV test parameters.
       @param verilator: Verilator test parameters.
       @param cw310: CW310 test parameters.
+      @param awsf1: AWS F1 test parameters.
       @param test_binary: Use the named binary as the test program rather than building one from srcs/deps.
       @param **kwargs: Arguments to forward to `opentitan_flash_binary`.
 
@@ -272,6 +337,7 @@ def opentitan_functest(
         sh_test                named: dv_{name}
         sh_test                named: verilator_{name}
         sh_test                named: cw310_{name}
+        sh_test                named: awsf1_{name}
         test_suite             named: {name}
     """
 
@@ -298,6 +364,7 @@ def opentitan_functest(
         "sim_dv": dv_params() if not dv else dv,
         "sim_verilator": verilator_params() if not verilator else verilator,
         "fpga_cw310": cw310_params() if not cw310 else cw310,
+        "fpga_awsf1": awsf1_params() if not awsf1 else awsf1,
     }
 
     for target, params in target_params.items():
@@ -390,6 +457,14 @@ def opentitan_functest(
             # command-specific options.
             concat_args = select({
                 "@//ci:lowrisc_fpga_cw310": ["--cw310-uarts=/dev/ttyACM_CW310_1,/dev/ttyACM_CW310_0"],
+                "//conditions:default": [],
+            }) + concat_args
+        if target == "fpga_awsf1":
+            # We attach the uarts configuration to the front of the command
+            # line so that they'll be parsed as global options rather than
+            # command-specific options.
+            concat_args = select({
+                "//ci:lowrisc_fpga_awsf1": ["--awsf1-uarts=/dev/ttyACM_AWSF1_1,/dev/ttyACM_AWSF1_0"],
                 "//conditions:default": [],
             }) + concat_args
         concat_data = _format_list(

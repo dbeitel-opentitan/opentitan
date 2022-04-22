@@ -224,6 +224,35 @@ jobs:
       includePatterns:
         - "/sw/***"
 
+- job: awsf1_sw_build
+  displayName: Build Software required for AWS F1 cloud FPGA synthesis
+  dependsOn: lint
+  condition: and(succeeded(), eq(dependencies.lint.outputs['DetermineBuildType.onlyDocChanges'], '0'))
+  pool:
+    vmImage: ubuntu-18.04
+  steps:
+  - template: ci/install-package-dependencies.yml
+  - bash: |
+      . util/build_consts.sh
+      ci/bazelisk.sh build \
+        //hw/ip/otp_ctrl/data:img_rma \
+        //sw/device/lib/testing/test_rom:test_rom_fpga_awsf1_scr_vmem \
+        //sw/device/lib/testing/test_rom:test_rom_fpga_awsf1_bin
+      mkdir -p $BIN_DIR/sw/device/otp_img
+      mkdir -p $BIN_DIR/sw/device/lib/testing/test_rom
+      cp $(ci/scripts/target-location.sh //hw/ip/otp_ctrl/data:img_rma) $BIN_DIR/sw/device/otp_img/otp_img_fpga_awsf1.vmem
+      TEST_ROM=$(ci/scripts/target-location.sh //sw/device/lib/testing/test_rom:test_rom_fpga_awsf1_scr_vmem)
+      TEST_ROM_DIR=$(dirname $TEST_ROM)
+      TEST_ROM_TARGET=$BIN_DIR/sw/device/lib/testing/test_rom
+      cp $TEST_ROM $TEST_ROM_TARGET/test_rom_fpga_awsf1.scr.39.vmem
+      cp $TEST_ROM_DIR/*fpga_awsf1.elf $TEST_ROM_TARGET/test_rom_fpga_awsf1.elf
+      cp $TEST_ROM_DIR/*fpga_awsf1.bin $TEST_ROM_TARGET/test_rom_fpga_awsf1.bin
+    displayName: Build embedded targets
+  - template: ci/upload-artifacts-template.yml
+    parameters:
+      includePatterns:
+        - "/sw/***"
+
 - job: chip_englishbreakfast_verilator
   displayName: Verilated English Breakfast
   # Build Verilator simulation of the English Breakfast toplevel design
@@ -384,6 +413,44 @@ jobs:
     displayName: Upload artifacts for CW310
     condition: failed()
 
+- job: chip_earlgrey_awsf1
+  displayName: Build AWS F1 variant of the Earl Grey toplevel design using Vivado
+  dependsOn:
+    - lint
+    # The bootrom is built into the FPGA image at synthesis time.
+    - awsf1_sw_build
+  condition: and(succeeded(), eq(dependencies.lint.outputs['DetermineBuildType.onlyDocChanges'], '0'), eq(dependencies.lint.outputs['DetermineBuildType.onlyDvChanges'], '0'))
+  pool: ci-public
+  timeoutInMinutes: 180
+  steps:
+  - template: ci/install-package-dependencies.yml
+  - template: ci/download-artifacts-template.yml
+    parameters:
+      downloadPartialBuildBinFrom:
+        - awsf1_sw_build
+  - bash: |
+      set -e
+      module load "xilinx/vivado/$(VIVADO_VERSION)"
+      ci/scripts/build-bitstream-vivado.sh top_earlgrey awsf1
+    displayName: Build bitstream with Vivado
+  - bash: |
+      . util/build_consts.sh
+      echo Synthesis log
+      cat $OBJ_DIR/hw/synth-vivado/lowrisc_systems_chip_earlgrey_awsf1_0.1.runs/synth_1/runme.log || true
+
+      echo Implementation log
+      cat $OBJ_DIR/hw/synth-vivado/lowrisc_systems_chip_earlgrey_awsf1_0.1.runs/impl_1/runme.log || true
+    condition: always()
+    displayName: Display synthesis and implementation logs
+  - template: ci/upload-artifacts-template.yml
+    parameters:
+      includePatterns:
+        - "/hw/***"
+  - publish: "$(Build.ArtifactStagingDirectory)"
+    artifact: chip_earlgrey_awsf1-build-out
+    displayName: Upload all Vivado artifacts for AWS F1
+    condition: failed()
+
 - job: chip_earlgrey_cw310_splice_mask_rom
   displayName: Splice Mask ROM into CW310 bitstream
   dependsOn:
@@ -431,6 +498,48 @@ jobs:
     displayName: Upload artifacts for CW310
     condition: failed()
 
+- job: chip_earlgrey_awsf1_splice_mask_rom
+  displayName: Splice mask ROM binary into AWS F1 bitstream using Vivado
+  dependsOn:
+    - chip_earlgrey_awsf1
+    - sw_build
+  condition: and(succeeded(), eq(dependencies.lint.outputs['DetermineBuildType.onlyDocChanges'], '0'), eq(dependencies.lint.outputs['DetermineBuildType.onlyDvChanges'], '0'))
+  pool: ci-public
+  timeoutInMinutes: 10
+  steps:
+  - template: ci/install-package-dependencies.yml
+  - template: ci/download-artifacts-template.yml
+    parameters:
+      downloadPartialBuildBinFrom:
+        - chip_earlgrey_awsf1
+        - sw_build
+  - bash: |
+      set -e
+      . util/build_consts.sh
+
+      module load "xilinx/vivado/$(VIVADO_VERSION)"
+
+      util/fpga/splice_rom.sh -t awsf1 -T earlgrey -b PROD
+
+    displayName: Splicing bitstream with Vivado
+  - template: ci/upload-artifacts-template.yml
+    parameters:
+      includePatterns:
+        - "/hw/***"
+  - ${{ if eq(variables['Build.SourceBranchName'], 'master') }}:
+    - template: ci/gcp-upload-bitstream-template.yml
+      parameters:
+        parentDir: "$BIN_DIR/hw/top_earlgrey"
+        includeFiles:
+          - "lowrisc_systems_chip_earlgrey_awsf1_0.1.bit.orig"
+          - "lowrisc_systems_chip_earlgrey_awsf1_0.1.bit.splice"
+        gcpKeyFile: "gcpkey.json"
+        bucketURI: "gs://opentitan-bitstreams/master"
+  - publish: "$(Build.ArtifactStagingDirectory)"
+    artifact: chip_earlgrey_awsf1-splice-mask-rom-build-out
+    displayName: Upload all Vivado artifacts for AWS F1
+    condition: failed()
+
 - job: chip_englishbreakfast_cw305
   displayName: CW305's Bitstream
   # Build CW305 variant of the English Breakfast toplevel design using Vivado
@@ -475,6 +584,42 @@ jobs:
       ci/scripts/run-fpga-cw310-tests.sh
     displayName: Execute tests
 
+- job: execute_fpga_tests_awsf1
+  displayName: Execute tests on ChipWhisperer AWS F1 FPGA board
+  pool: FPGA
+  timeoutInMinutes: 30
+  dependsOn:
+    - chip_earlgrey_awsf1
+    - sw_build
+  steps:
+  - template: ci/install-package-dependencies.yml
+  - template: ci/download-artifacts-template.yml
+    parameters:
+      downloadPartialBuildBinFrom:
+        - chip_earlgrey_awsf1
+        - sw_build
+  - bash: |
+      set -e
+      set -x
+      . util/build_consts.sh
+      SHA=$(git rev-parse HEAD)
+      BITCACHE_DIR=~/.cache/opentitan-bitstreams/cache/${SHA}
+      mkdir -p $BITCACHE_DIR
+      BITCACHE_FILE=$BITCACHE_DIR/lowrisc_systems_chip_earlgrey_awsf1_0.1.bit.orig
+      cp $BIN_DIR/hw/top_earlgrey/lowrisc_systems_chip_earlgrey_awsf1_0.1.bit ${BITCACHE_FILE}
+      echo "" >> ${BITCACHE_DIR}/lowrisc_systems_chip_earlgrey_awsf1_0.1.bit.splice
+      echo -n ${SHA} > ${BITCACHE_DIR}/../../latest.txt
+      export BITSTREAM="--offline --list ${SHA}"
+      ci/bazelisk.sh test \
+          --define DISABLE_VERILATOR_BUILD=true \
+          --test_tag_filters=awsf1,-broken \
+          --test_output=all \
+          --build_tests_only \
+          --define awsf1=lowrisc \
+          $(./bazelisk.sh query 'rdeps(//...,@bitstreams//:bitstream_test_rom)') \
+          # All the tests that depend on the test rom
+    displayName: Execute tests
+
 - job: deploy_release_artifacts
   displayName: Package & deploy release
   pool:
@@ -484,6 +629,7 @@ jobs:
     - sw_build
     - execute_verilated_tests
     - chip_earlgrey_cw310
+    - chip_earlgrey_awsf1
   condition: and(eq(dependencies.lint.outputs['DetermineBuildType.onlyDocChanges'], '0'), eq(dependencies.lint.outputs['DetermineBuildType.onlyDvChanges'], '0'), eq(dependencies.lint.outputs['DetermineBuildType.onlyCdcChanges'], '0'))
   steps:
   - template: ci/install-package-dependencies.yml
@@ -493,6 +639,7 @@ jobs:
         - sw_build
         - execute_verilated_tests
         - chip_earlgrey_cw310
+        - chip_earlgrey_awsf1
         - chip_englishbreakfast_verilator
   - bash: |
       . util/build_consts.sh

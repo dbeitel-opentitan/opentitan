@@ -14,3 +14,10 @@ config_setting(
         "cw310": "lowrisc",
     },
 )
+
+config_setting(
+    name = "lowrisc_fpga_awsf1",
+    define_values = {
+        "awsf1": "lowrisc",
+    },
+)

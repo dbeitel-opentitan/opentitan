@@ -50,6 +50,11 @@ typedef enum device_type {
    * development board for OpenTitan, containing a Xilinx FPGA.
    */
   kDeviceFpgaNexysVideo = 3,
+  /**
+   * Represents the "AWS F1 cloud FPGA" device, i.e., the particular
+   * FPGA board blessed for OpenTitan development, containing a Xilinx FPGA.
+   */
+  kDeviceFpgaAwsF1 = 4,
 } device_type_t;
 
 /**

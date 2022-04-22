@@ -1,0 +1,19 @@
+CAPI=2:
+# Copyright lowRISC contributors.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+name: "lowrisc:dv:awsf1_lib"
+description: "Support library for AWS F1 FPGAs."
+filesets:
+  files_rtl:
+    files:
+      - shell/design/lib/lib_pipe.sv
+      - shell/design/lib/bram_2rw.sv
+      - shell/design/lib/flop_fifo.sv
+    file_type: systemVerilogSource
+
+targets:
+  default:
+    filesets:
+      - files_rtl

@@ -1,0 +1,33 @@
+CAPI=2:
+# Copyright lowRISC contributors.
+# Licensed under the Apache License, Version 2.0, see LICENSE for details.
+# SPDX-License-Identifier: Apache-2.0
+
+name: "lowrisc:dv:awsf1_sh_ddr"
+description: "Shared DDR for AWS F1 FPGAs."
+filesets:
+  files_rtl_v:
+    files:
+      - shell/design/sh_ddr/synth/sync.v
+      - shell/design/sh_ddr/synth/ccf_ctl.v
+    file_type: verilogSource
+
+  files_rtl_sv:
+    files:
+      - shell/design/sh_ddr/synth/flop_ccf.sv
+      - shell/design/sh_ddr/synth/mgt_acc_axl.sv
+      - shell/design/sh_ddr/synth/mgt_gen_axl.sv
+      - shell/design/sh_ddr/synth/sh_ddr.sv
+    file_type: systemVerilogSource
+
+  files_constraints:
+    files:
+      - shell/build/constraints/cl_ddr.xdc
+    file_type: xdc
+
+targets:
+  default:
+    filesets:
+      - files_rtl_v
+      - files_rtl_sv
+      - files_constraints

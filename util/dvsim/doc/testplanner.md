@@ -58,7 +58,7 @@ The following attributes are used to define each testpoint, at minimum:
 
 ```hjson
   // Run this testpoint on verilator and fpga as well.
-  tags: ["verilator", "fpga_cw310"]
+  tags: ["verilator", "fpga_cw310", "fpga_awsf1" ]
 
   // Run this testpoint in gate level and with poweraware.
   tags: ["gls", "pa"]

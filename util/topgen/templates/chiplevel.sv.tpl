@@ -1008,7 +1008,7 @@ module chip_${top["name"]}_${target["name"]} (
 ###################################################################
 ## FPGA shared                                                   ##
 ###################################################################
-% if target["name"] in ["cw310", "cw305"]:
+% if target["name"] in ["cw310", "cw305", "awsf1"]:
   //////////////////
   // PLL for FPGA //
   //////////////////
@@ -1051,7 +1051,7 @@ module chip_${top["name"]}_${target["name"]} (
 // Also need to add AST simulation and FPGA emulation models for things like entropy source -
 // otherwise Verilator / FPGA will hang.
   top_${top["name"]} #(
-% if target["name"] == "cw310":
+% if target["name"] in ["cw310", "awsf1"]:
     .SecAesMasking(1'b1),
     .SecAesSBoxImpl(aes_pkg::SBoxImplDom),
     .SecAesStartTriggerDelay(40),
