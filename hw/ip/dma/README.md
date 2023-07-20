@@ -902,15 +902,15 @@ i.e. unlocked @ reset</p>
 </tr>
 <tr class="even">
 <td>Aborted[2:2]</td>
-<td></td>
+<td>Indicates that the operation was aborted based on input of the DMAC control register</td>
 </tr>
 <tr class="odd">
 <td>Error[3:3]</td>
-<td>Operation Error</td>
+<td>Flag indicating an operation error happened</td>
 </tr>
 <tr class="even">
 <td>Error Code</td>
-<td>TBD</td>
+<td>There are currently 6 types of DMA errors: source address error, destination address error, opcode error, size error, completion error and base limit error.</td>
 </tr>
 </tbody>
 </table>
