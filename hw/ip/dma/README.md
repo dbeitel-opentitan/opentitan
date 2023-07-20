@@ -1,18 +1,4 @@
-# Integrated OpenTitan: DMA Controller (secure\_dmac\_spec)
-
-Contributor: [*Neeraj Upasani*](mailto:neeraj@opentitan.org)
-
-Reviewer: [*Pirmin Vogel*](mailto:vogelpi@opentitan.org) [*Andreas
-Kurth*](mailto:adk@opentitan.org) [*Michael
-Schaffner*](mailto:msf@opentitan.org)
-[*technical-committee@opentitan.org*](mailto:technical-committee@opentitan.org)
-
-Last Update: 2023-04-24
-
-Approved by TC: 2023-04-25
-
-Status: Approved v1.0
-
+# DMA Controller (dma)
 
 ## Introduction
 
@@ -20,8 +6,6 @@ Status: Approved v1.0
 
 Document a proposal for the secure DMA controller for the Integrated
 OpenTitan project
-
-### Document Organization
 
 ### Glossary
 
@@ -178,9 +162,7 @@ document for more details on handling of SoC level memory operations.
 | SoC memory            | Any memory outside the OpenTitan RoT secure perimeter |
 |                       | This memory may be untrusted from the OT perspective or may be included in its trust boundary for certain cases by leveraging SoC defined security access control enforcement |
 
-
 ![](doc/secure_perimeter.png)
-
 
 ### Mode of operation
 
@@ -738,8 +720,6 @@ i.e. unlocked @ reset</p>
 
 #### DMAC Memory Buffer Limit High Register
 
-
-
 <table>
 <tbody>
 <tr class="odd">
@@ -797,8 +777,6 @@ i.e. unlocked @ reset</p>
 </tr>
 </tbody>
 </table>
-
-
 
 #### DMAC Control Register
 
@@ -1000,8 +978,6 @@ the original requested is done via the DOE response object mechanism
 </tr>
 </tbody>
 </table>
-
-
 
 ## Extension: Inline Operations
 
