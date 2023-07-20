@@ -278,7 +278,7 @@ controller control interface is attached clean of many repeated
 transactions. The number of interrupt signals is expected to be low,
 e.g., 2 or 3.)
 
-Following information regarding the low speed IO peripheral will be know
+Following information regarding the low speed IO peripheral will be known
 to firmware at build time and set in the DMAC registers to configure a
 hardware handshake DMA operation
 
@@ -302,7 +302,7 @@ hardware handshake DMA operation
 -   [*Transfer Size*](#dmac-transfer-size-register): Size of each transaction
     (equivalent to FIFO read data width)
 -   [*Limit register*](#dmac-memory-buffer-limit-low-register): Marks the end of the buffer used
-    to load ‘total size’ worth of data payloads if memory buffer
+    to write ‘total size’ worth of data payloads if memory buffer
     auto-increment feature is used. DMAC shall set an overflow
     indication if the buffer limit is reached.
 -   [*DMAC Control register*](#dmac-control-register)
@@ -340,7 +340,7 @@ hardware handshake DMA operation
     pointer in source address register (receive FIFO) and places them in
     the destination buffer. Note that width of each read is per the
     ‘transfer size’ setting.
--   ***Note**: assumption is the peripheral lowers input once FIFO is
+-   **Note**: *assumption is the peripheral lowers input once FIFO is
     cleared. No explicit clearing necessary*
 -   The DMA engine increments the source and destination address
     register if respective auto-increment enable is set.
