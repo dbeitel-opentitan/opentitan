@@ -1,32 +1,5 @@
 # DMA Controller (dma)
 
-## Introduction
-
-### Version History
-
-<table>
-<tbody>
-<tr class="odd">
-<td>Version</td>
-<td>Description</td>
-<td>Authors</td>
-</tr>
-<tr class="even">
-<td>0.1</td>
-<td>Initial version</td>
-<td><p> <a href="mailto:neeraj@rivosinc.com"><em>Neeraj Upasani</em></a></p>
-<p>(Rivos Inc)</p></td>
-</tr>
-<tr class="odd">
-<td>0.3</td>
-<td><p>Register Updates; </p>
-<p>Use case Updates</p></td>
-<td><p><a href="mailto:neeraj@rivosinc.com"><em>Neeraj Upasani</em></a></p>
-<p>(Rivos Inc)</p></td>
-</tr>
-</tbody>
-</table>
-
 ## Overview
 
 The integrated version of OpenTitan Root-Of-Trust may provide security
