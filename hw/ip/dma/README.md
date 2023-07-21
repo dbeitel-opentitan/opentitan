@@ -980,9 +980,8 @@ confidential computing) when exposing Integrated OT as a PCIe device.
 
 ### Glossary
 
-|                                      |                                                                 |
-|--------------------------------------|-----------------------------------------------------------------|
 | Term                                 | Description                                                     |
+|--------------------------------------|-----------------------------------------------------------------|
 | PCIe                                 | PCI Express                                                     |
 | CXL                                  | Compute Express Link                                            |
 | MCTP                                 | Management Component Transport Protocol                         |
