@@ -83,7 +83,7 @@ the OT Trusted Compute Boundary
     subject to additional protection schemes - either using
     cryptographic techniques or access control based isolation
     techniques*
--   *External agents **shall not have direct access **to any addressable
+-   *External agents <ins>shall not have direct access</ins> to any addressable
     regions within OT address space other than the mailbox registers*
 -   *The DMA controller shall support hardware range registers to
     configure the address range for DMA enabled OT memory. Range
@@ -802,7 +802,7 @@ i.e. unlocked @ reset</p>
 </tbody>
 </table>
 
-***Note*****: **
+***Note***:
 
 DMA requests are initiated by the system software (or SoC firmware
 agent) through the appropriately defined [*DOE mailbox
