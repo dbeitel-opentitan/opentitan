@@ -2,11 +2,6 @@
 
 ## Introduction
 
-### Scope
-
-Document a proposal for the secure DMA controller for the Integrated
-OpenTitan project
-
 ### Glossary
 
 |                                      |                                                                 |
