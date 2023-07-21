@@ -876,7 +876,7 @@ have to be known.
 
 ## Future Considerations
 
-SoC-Defined Attributes
+### SoC-Defined Attributes
 
 The DMA controller may at some point need to be able to support
 SoC-defined attributes on the transactions it generates. This is
