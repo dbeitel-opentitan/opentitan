@@ -1,7 +1,5 @@
 # DMA Controller (dma)
 
-## Overview
-
 The integrated version of OpenTitan Root-Of-Trust may provide security
 services to the SoC such as:
 
