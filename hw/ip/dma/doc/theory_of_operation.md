@@ -13,7 +13,7 @@
 | SoC memory            | Any memory outside the OpenTitan RoT secure perimeter |
 |                       | This memory may be untrusted from the OT perspective or may be included in its trust boundary for certain cases by leveraging SoC defined security access control enforcement |
 
-![](./secure_perimeter.png)
+![](./secure_perimeter.svg)
 
 ## Mode of operation
 
