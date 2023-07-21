@@ -2,57 +2,6 @@
 
 ## Introduction
 
-### Glossary
-
-|                                      |                                                                 |
-|--------------------------------------|-----------------------------------------------------------------|
-| Term                                 | Description                                                     |
-| PCIe                                 | PCI Express                                                     |
-| CXL                                  | Compute Express Link                                            |
-| MCTP                                 | Management Component Transport Protocol                         |
-| SPDM                                 | Security Protocol and Data Model                                |
-| CMA                                  | Component Measurement and Attestation                           |
-| [*DMTF*](https://www.dmtf.org/about) | formerly known as the Distributed Management Task Force         |
-| OT                                   | OpenTitan                                                       |
-| RoT                                  | Root Of Trust                                                   |
-| CTN                                  | ConTrol Network                                                 |
-| SoC                                  | System On Chip                                                  |
-| IOMMU                                | Input Output Memory Management Unit |
-| ECR                                  | Engineering Change Request                                      |
-| ECN                                  | Engineering Change Notification                                 |
-
-### References
-
-<table>
-<tbody>
-<tr class="even">
-<td>OpenTitan Documentation </td>
-<td><a href="https://docs.opentitan.org/"><em>https://docs.opentitan.org/</em></a></td>
-</tr>
-<tr class="odd">
-<td>PCIe Specification</td>
-<td><a href="https://members.pcisig.com/wg/PCI-SIG/document/18363"><em>PCI Express</em></a></td>
-</tr>
-<tr class="even">
-<td>CXL Specification</td>
-<td><a href="https://www.computeexpresslink.org/download-the-specification"><em>Compute Express Link</em></a></td>
-</tr>
-<tr class="odd">
-<td>SPDM</td>
-<td><p><a href="https://www.dmtf.org/dsp/DSP0274"><em>https://www.dmtf.org/dsp/DSP0274</em></a></p>
-<p>CMA requires SPDM Version 1.0 or above</p></td>
-</tr>
-<tr class="even">
-<td>SPDM-MCTP</td>
-<td><a href="https://www.dmtf.org/dsp/DSP0275"><em>https://www.dmtf.org/dsp/DSP0275</em></a></td>
-</tr>
-<tr class="odd">
-<td>Secured SPDM</td>
-<td><a href="https://www.dmtf.org/dsp/DSP0277"><em>https://www.dmtf.org/dsp/DSP0277</em></a></td>
-</tr>
-</tbody>
-</table>
-
 ### Version History
 
 <table>
@@ -1028,6 +977,57 @@ particularly relevant for systems that define their memory into realms.
 However, many of these attributes will likely be managed by an IOMMU and
 other SoC components. An exception could be the T-bit for PCIe (for
 confidential computing) when exposing Integrated OT as a PCIe device.
+
+### Glossary
+
+|                                      |                                                                 |
+|--------------------------------------|-----------------------------------------------------------------|
+| Term                                 | Description                                                     |
+| PCIe                                 | PCI Express                                                     |
+| CXL                                  | Compute Express Link                                            |
+| MCTP                                 | Management Component Transport Protocol                         |
+| SPDM                                 | Security Protocol and Data Model                                |
+| CMA                                  | Component Measurement and Attestation                           |
+| [*DMTF*](https://www.dmtf.org/about) | formerly known as the Distributed Management Task Force         |
+| OT                                   | OpenTitan                                                       |
+| RoT                                  | Root Of Trust                                                   |
+| CTN                                  | ConTrol Network                                                 |
+| SoC                                  | System On Chip                                                  |
+| IOMMU                                | Input Output Memory Management Unit |
+| ECR                                  | Engineering Change Request                                      |
+| ECN                                  | Engineering Change Notification                                 |
+
+### References
+
+<table>
+<tbody>
+<tr class="even">
+<td>OpenTitan Documentation </td>
+<td><a href="https://docs.opentitan.org/"><em>https://docs.opentitan.org/</em></a></td>
+</tr>
+<tr class="odd">
+<td>PCIe Specification</td>
+<td><a href="https://members.pcisig.com/wg/PCI-SIG/document/18363"><em>PCI Express</em></a></td>
+</tr>
+<tr class="even">
+<td>CXL Specification</td>
+<td><a href="https://www.computeexpresslink.org/download-the-specification"><em>Compute Express Link</em></a></td>
+</tr>
+<tr class="odd">
+<td>SPDM</td>
+<td><p><a href="https://www.dmtf.org/dsp/DSP0274"><em>https://www.dmtf.org/dsp/DSP0274</em></a></p>
+<p>CMA requires SPDM Version 1.0 or above</p></td>
+</tr>
+<tr class="even">
+<td>SPDM-MCTP</td>
+<td><a href="https://www.dmtf.org/dsp/DSP0275"><em>https://www.dmtf.org/dsp/DSP0275</em></a></td>
+</tr>
+<tr class="odd">
+<td>Secured SPDM</td>
+<td><a href="https://www.dmtf.org/dsp/DSP0277"><em>https://www.dmtf.org/dsp/DSP0277</em></a></td>
+</tr>
+</tbody>
+</table>
 
 ## Appendix
 
