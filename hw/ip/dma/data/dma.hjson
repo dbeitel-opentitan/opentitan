@@ -62,7 +62,11 @@
   regwidth: "32"
   registers: [
     { name: "SOURCE_ADDRESS_LO"
-      desc: "Lower 32 bits of 4 byte aligned physical or virtual address of memory location within SOC memory address map or physical address within OT non-secure memory space."
+      desc: '''
+            Lower 32 bits of 4 byte aligned physical or virtual address of memory location within SoC memory address map or physical address within OT non-secure memory space.
+            Data is read from this location in a copy operation.
+            The address may be an IO virtual address.
+            '''
       swaccess: "rw"
       hwaccess: "hrw"
       hwqe: "true"
@@ -83,12 +87,16 @@
         { bits: "31:0"
           name: "source_address_hi"
           resval: 0x0
-          desc: "Upper 32 bits of 4 byte aligned physical or virtual address of memory location within SOC memory address map or physical address within OT non-secure memory space."
+          desc: "Upper 32 bits of 4 byte aligned physical or virtual address of memory location within SoC memory address map or physical address within OT non-secure memory space."
         }
       ]
     }
     { name: "DESTINATION_ADDRESS_LO"
-      desc: "Lower 32 bits of 4 byte aligned physical or virtual address of memory location within SOC memory address map or physical address within OT non-secure memory space."
+      desc: '''
+            Lower 32 bits of 4 byte aligned physical or virtual address of memory location within SoC memory address map or physical address within OT non-secure memory space.
+            Data is written to this location in a copy operation.
+            The address may be an IO virtual address.
+            '''
       swaccess: "rw"
       hwaccess: "hrw"
       hwqe: "true"
@@ -109,7 +117,7 @@
         { bits: "31:0"
           name: "destination_address_hi"
           resval: 0x0
-          desc: "Upper 32 bits of 4 byte aligned physical or virtual address of memory location within SOC memory address map or physical address within OT non-secure memory space."
+          desc: "Upper 32 bits of 4 byte aligned physical or virtual address of memory location within SoC memory address map or physical address within OT non-secure memory space."
         }
       ]
     }
@@ -201,7 +209,7 @@
           name: "unlock"
           resval: true
           desc: '''Used by firmware to lock the DMA enabled memory range configuration registers from further modification.
-                This register once set to kMultiBitBool4False can be set only upon a reset event.
+                Once this register is set to kMultiBitBool4False, it can only be set to kMultiBitBool4True through a reset event.
 
                 Default Value = kMultiBitBool4True -> Unlocked at reset.
                 '''
@@ -216,10 +224,10 @@
         { bits: "31:0"
           name: "data_size"
           resval: 0x0
-          desc: '''Total size of the data blob involved in DMA movement.
+          desc: '''Total size (in bytes) of the data blob involved in DMA movement.
 
                 Minimum: 1 byte.
-                Maximum: may be restricted to a maximum pre-defined size based on OT DMA enabled memory space allocation.
+                Maximum: May be restricted to a maximum pre-defined size based on OT DMA enabled memory space allocation.
                 Works in conjunction with Transfer width register.
           '''
         }
@@ -347,6 +355,13 @@
           desc: '''Defines the type of DMA operations.
 
                 0: Copy Operation, Simple copy from source to destination.
+                1: Reserved for hashing (SHA2). Perform inline hash operation using the specified algorithm.
+                2: Reserved for symmetric encryption
+                3: Reserved for symmetric decryption
+                4: Reserved for future use
+
+                Note that the Copy operation is a basic operation that needs to be supported.
+                Currently the other operations are reserved for a future implementation, and they are optional capabilities that may be included via design time options.
                 '''
         }
         { bits: "6"
@@ -367,8 +382,8 @@
           resval: 0x0
           desc: '''Used in conjunction with the hardware handshake mode of operation.
                 Auto Increments the memory buffer address register by data size to point to the next memory buffer address.
-                Generate a warning (assert interrupt) if the auto-incremented address reaches close to the value set in.
-                limit address register to prevent destination buffer overflow.
+                Generate a warning (assert interrupt) if the auto-incremented address reaches close to the value set in limit address register to prevent destination buffer overflow.
+                Enables firmware to take appropriate action prior to reaching the limit.
                 '''
         }
         { bits: "8"
@@ -393,6 +408,7 @@
           resval: 0x0
           desc: '''Aborts the DMA operation if this bit is set.
                 Sets the corresponding bit in the status register once abort operation is complete.
+                Any OpenTitan-internal transactions are guaranteed to complete, but there are no guarantees on the SoC interface.
                 '''
         }
         { bits: "31"
