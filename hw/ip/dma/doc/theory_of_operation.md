@@ -650,13 +650,13 @@ i.e. unlocked @ reset</p>
 <td><p>Defines the type of DMA operations</p>
 <p>0: Copy Operation</p>
 <p>Simple copy from source to destination</p>
-<p>1: Hash Operation (algorithm SHA2-256)</p>
+<p>1: Reserved for hashing (SHA2)</p>
 <p>Perform inline hash operation using the specified algorithm</p>
-<p>2: Encrypt (AES-GCM)</p>
-<p>3: Decrypt (AES-GCM)</p>
-<p>4: ALU Ops (ADD, MUL, etc) </p>
+<p>2: Reserved for symmetric encryption</p>
+<p>3: Reserved for symmetric decryption</p>
+<p>4: Reserved for future use</p>
 <p><em><strong>Note </strong>that the Copy operation is a basic operation that needs to be supported.</em></p>
-<p><em>Other operations are optional capabilities that may be included via design time options.</em></p></td>
+<p><em>Currently the other operations are reserved for a future implementation, and they are optional capabilities that may be included via design time options.</em></p></td>
 </tr>
 <tr class="even">
 <td>Hardware handshake Enable [6:6]</td>
