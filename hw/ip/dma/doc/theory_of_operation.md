@@ -515,7 +515,7 @@ i.e. unlocked @ reset</p>
 <td>32 bits</td>
 <td>Data Size[31:0]</td>
 <td><p>Total Size (in bytes) of the data blob involved in data movement</p>
-<p><em>Minimum: 1 bytes</em></p>
+<p><em>Minimum: 1 byte</em></p>
 <p><em>Maximum: May be restricted to a maximum pre-defined size based on OT DMA enabled memory space allocation.</em></p>
 <p>Works in conjunction with Transfer size register below. </p></td>
 </tr>
