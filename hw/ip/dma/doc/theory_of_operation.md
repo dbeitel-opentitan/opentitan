@@ -132,7 +132,7 @@ hardware handshake DMA operation.
 -   [*Total Size*](#dmac-total-size-register): Size of the data object to be popped
     from the FIFO (equivalent to the number of reads from the FIFO per
     interrupt times the FIFO read data width).
--   [*Transfer Size*](#dmac-transfer-size-register): Size of each transaction
+-   [*Transfer Width*](#dmac-transfer-width-register): Width of each transaction
     (equivalent to FIFO read data width).
 -   [*Limit register*](#dmac-memory-buffer-limit-low-register): Marks the end of the buffer used
     to write ‘total size’ worth of data payloads if memory buffer
@@ -148,7 +148,7 @@ hardware handshake DMA operation.
     -   Data Direction = 0 (receive)
 
     -   FIFO address auto-increment enable: If set, consecutive
-        ‘transfer size’ worth of data chunks are popped from the FIFO
+        ‘transfer width’ worth of data chunks are popped from the FIFO
         using consecutive register addresses. If not enabled,
         consecutive data chunks are popped by repeatedly reading the
         same register address.
@@ -172,7 +172,7 @@ hardware handshake DMA operation.
 -   The DMA engine reads the ‘total size’ number of bytes from the
     pointer in source address register (receive FIFO) and places them in
     the destination buffer. Note that width of each read is per the
-    ‘transfer size’ setting.
+    ‘transfer width’ setting.
 -   **Note**: *assumption is the peripheral lowers input once FIFO is
     cleared. No explicit clearing necessary.*
 -   The DMA engine increments the source and destination address
@@ -196,7 +196,7 @@ hardware handshake DMA operation.
 
 -   [*Total Size*](#dmac-total-size-register): Size of the data object to be pushed
     into the FIFO.
--   [*Transfer Size*](#dmac-transfer-size-register): Write Data width of the LSIO FIFO
+-   [*Transfer Width*](#dmac-transfer-width-register): Write Data width of the LSIO FIFO
     register. Each write transaction is equal to this size.
 -   [*Limit register*](#dmac-memory-buffer-limit-low-register): Marks the end of the memory
     buffer used to read ‘total size’ worth of data segments if
@@ -234,7 +234,7 @@ hardware handshake DMA operation.
     certain ‘almost empty’ threshold.
 -   The DMA engine reads the total size number of bytes from the source
     address register (memory) and writes them into the FIFO register.
-    Width of each write is equal to the transfer size setting.
+    Width of each write is equal to the transfer width setting.
 -   ***Note**: assumption is the peripheral lowers ‘almost empty’
     interrupt once FIFO is filled. No explicit clearing necessary.
 -   The DMA engine increments the source and destination address
@@ -517,12 +517,12 @@ i.e. unlocked @ reset</p>
 <td><p>Total Size (in bytes) of the data blob involved in data movement</p>
 <p><em>Minimum: 1 byte</em></p>
 <p><em>Maximum: May be restricted to a maximum pre-defined size based on OT DMA enabled memory space allocation.</em></p>
-<p>Works in conjunction with Transfer size register below. </p></td>
+<p>Works in conjunction with Transfer width register below. </p></td>
 </tr>
 </tbody>
 </table>
 
-### DMAC Transfer Size Register
+### DMAC Transfer Width Register
 
 <table>
 <tbody>
@@ -533,17 +533,17 @@ i.e. unlocked @ reset</p>
 <td><strong>Notes</strong></td>
 </tr>
 <tr class="even">
-<td>Transfer Size </td>
+<td>Transfer Width </td>
 <td>2 bits</td>
-<td>Transaction size Size[1:0]</td>
-<td><p>Denotes the size of each transaction that the DMAC shall issue during the data movement.</p>
-<p>Multiple transactions of transfer size each will be issued until total size number of bytes are reached</p>
+<td>Transaction width[1:0]</td>
+<td><p>Denotes the width of each transaction that the DMAC shall issue during the data movement.</p>
+<p>Multiple transactions of transfer width each will be issued until total size number of bytes are reached</p>
 <p>11: Reset Default option - 4 bytes</p>
 <p>10: Three bytes per transaction</p>
 <p>01: Two bytes per transaction</p>
 <p>00: 1 byte per transaction</p>
 <p><em>Note:<br />
-- Firmware may need to set a different value if a receiving IP supports a read / write transaction size that is less than 1 DWORD.</em></p>
+- Firmware may need to set a different value if a receiving IP supports a read / write transaction width that is less than 1 DWORD.</em></p>
 <p><em>- This does not affect the wrap-around mechanism.</em></p></td>
 </tr>
 </tbody>
@@ -937,7 +937,7 @@ confidential computing) when exposing Integrated OT as a PCIe device.
 
 ## Appendix
 
-FIFO address auto-increment enable: If set, consecutive ‘transfer size’
+FIFO address auto-increment enable: If set, consecutive ‘transfer width
 worth of data chunks are popped from the FIFO using consecutive register
 addresses. If not enabled, consecutive data chunks are popped by
 repeatedly reading the same register address.
