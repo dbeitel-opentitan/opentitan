@@ -21,7 +21,7 @@ The DMA is envisioned to operate in two main modes:
 
 1.  Data movement (bulk data movement or register read / write
     operations). May perform additional smart in-line operations during
-    data movement beyond simple copy
+    data movement beyond simple copy.
 2.  Hardware handshake mode where the DMA controller may be used to fill
     up or drain out hardware FIFO data for low speed IO peripherals (or
     other peripherals) that support it.
@@ -34,7 +34,7 @@ the OT Trusted Compute Boundary
 -   External agents (e.g. System Host or other SoC Controllers) may
     request certain security services from OpenTitan such as encryption,
     digital signing etc. Such an operation is requested using the
-    Mailbox interface and may involve bulk data movement
+    Mailbox interface and may involve bulk data movement.
 
     -   Please refer to the [*mailbox specification*](https://opentitan.org/book/hw/ip/mbx/index.html)
         for further details on the mailbox structure.
@@ -45,29 +45,29 @@ the OT Trusted Compute Boundary
         address.
 
     -   Destination address pointer & Address space Identifier of the
-        destination address
+        destination address.
 
-    -   Size of the data object to be moved
+    -   Size of the data object to be moved.
 
     -   Opcode - Type of any optionally supported operation e.g.
-        Cryptographic hash
+        Cryptographic hash.
 
-    -   \<anything else TBD\>
+    -   \<anything else TBD\>.
 
 -   OT firmware parses the command object passed through the mailbox.
--   OT firmware sanitizes mailbox objects as required
+-   OT firmware sanitizes mailbox objects as required.
 -   OT firmware allocates DMA enabled memory space for the data movement
-    as needed
+    as needed.
 -   OT firmware configures DMA source address register & the
-    corresponding address space Identifier
+    corresponding address space Identifier.
 -   OT firmware configures DMA destination address register &
-    corresponding address space Identifier
+    corresponding address space Identifier.
 -   OT firmware completes other configurations such as operation size,
     OPCODE of any additional inline operations requested (e.g.
-    cryptographic hash calculation of data blob being moved)
--   OT firmware triggers the DMA operation
+    cryptographic hash calculation of data blob being moved).
+-   OT firmware triggers the DMA operation.
 -   DMA hardware performs appropriate address and configuration checks
-    to enforce the defined security and access control properties
+    to enforce the defined security and access control properties.
 -   OT firmware chooses to poll for status registers until operation
     completes or waits for completion interrupt from the DMA controller.
 
@@ -78,13 +78,13 @@ the OT Trusted Compute Boundary
     Register address space, System Address Space), corresponding
     identifiers & any involved address translation. Note that the
     address pointer may be an IO Virtual Address (IOVA) when the address
-    space identifier is the system address space*
+    space identifier is the system address space.*
 -   *As mentioned in the aforementioned document, the SoC memory may be
     subject to additional protection schemes - either using
     cryptographic techniques or access control based isolation
-    techniques*
+    techniques.*
 -   *External agents <ins>shall not have direct access</ins> to any addressable
-    regions within OT address space other than the mailbox registers*
+    regions within OT address space other than the mailbox registers.*
 -   *The DMA controller shall support hardware range registers to
     configure the address range for DMA enabled OT memory. Range
     registers may be configured by OT firmware at boot time and locked
@@ -93,12 +93,12 @@ the OT Trusted Compute Boundary
     reused, although striking a balance between feature complexity and
     consolidation is needed.*
 -   *DMA controller shall perform address checks against this configured
-    range*
+    range.*
 -   *Detailed list of hardware checks performed by the DMA controller
-    covered under* [*DMAC HW Enforced Security Checks*](#dmac-hw-enforced-security-checks)
+    covered under* [*DMAC HW Enforced Security Checks*](#dmac-hw-enforced-security-checks).
 -   *Note that the DMA enabled memory may be a physically separate SRAM
     structure or a partitioned and access controlled region of the OT
-    SRAM memory*
+    SRAM memory.*
 
 ### Hardware handshake based DMA operation
 
@@ -113,35 +113,35 @@ e.g., 2 or 3.)
 
 Following information regarding the low speed IO peripheral will be known
 to firmware at build time and set in the DMAC registers to configure a
-hardware handshake DMA operation
+hardware handshake DMA operation.
 
 **Receiving data from LSIO**
 
 -   [*Source address*](#dmac-source-address-low-register): address of the low speed IO
-    receive FIFO read out register
+    receive FIFO read out register.
 -   [*Destination address*](#dmac-destination-address-low-register): address to the memory
-    buffer where received data is placed
+    buffer where received data is placed.
 -   [*Address space ID*](#dmac-address-space-register): (OT Internal, CTN or System)
 
     -   Source ASID: Specify the address space in which the LSIO FIFO is
-        visible
+        visible.
 
     -   Destination ASID: Specify the address space in which the
-        destination buffer resides
+        destination buffer resides.
 
 -   [*Total Size*](#dmac-total-size-register): Size of the data object to be popped
     from the FIFO (equivalent to the number of reads from the FIFO per
-    interrupt times the FIFO read data width)
+    interrupt times the FIFO read data width).
 -   [*Transfer Size*](#dmac-transfer-size-register): Size of each transaction
-    (equivalent to FIFO read data width)
+    (equivalent to FIFO read data width).
 -   [*Limit register*](#dmac-memory-buffer-limit-low-register): Marks the end of the buffer used
     to write ‘total size’ worth of data payloads if memory buffer
     auto-increment feature is used. DMAC shall set an overflow
     indication if the buffer limit is reached.
--   [*DMAC Control register*](#dmac-control-register)
+-   [*DMAC Control register*](#dmac-control-register):
 
     -   Opcode: Type of operation requested. Typically set to copy
-        operation in case of hardware handshake mode of operation
+        operation in case of hardware handshake mode of operation.
 
     -   Hardware handshake enable = 1
 
@@ -162,42 +162,42 @@ hardware handshake DMA operation
         emptied from the FIFO & written to the buffer segment. If auto
         increment feature is not set, then the memory buffer gets
         overwritten each time the low speed device triggers the DMA
-        based hardware handshake operation
+        based hardware handshake operation.
 
-    -   Go = 1 to start the operation
+    -   Go = 1 to start the operation.
 
--   DMA engines start listening to input interrupt
+-   DMA engines start listening to input interrupt.
 -   Low speed IO peripheral FIFO asserts interrupt once FIFO reaches a
-    certain threshold
+    certain threshold.
 -   The DMA engine reads the ‘total size’ number of bytes from the
     pointer in source address register (receive FIFO) and places them in
     the destination buffer. Note that width of each read is per the
     ‘transfer size’ setting.
 -   **Note**: *assumption is the peripheral lowers input once FIFO is
-    cleared. No explicit clearing necessary*
+    cleared. No explicit clearing necessary.*
 -   The DMA engine increments the source and destination address
     register if respective auto-increment enable is set.
 -   DMA engine waits for the interrupt to get asserted again (i.e. waits
-    for FIFO to be filled)
+    for FIFO to be filled).
 
 **Sending data to LSIO**
 
 -   [*Source address*](#dmac-source-address-low-register): Pointer to the head of the
-    memory buffer
+    memory buffer.
 -   [*Destination address*](#dmac-destination-address-low-register): pointer to the FIFO
-    register
+    register.
 -   [*Address space ID*](#dmac-address-space-register): (OT Internal, CTN or System)
 
     -   Source ASID: Specify the address space in which the source
-        buffer resides
+        buffer resides.
 
     -   Destination ASID: Specify the address space in which the LSIO
-        FIFO is visible
+        FIFO is visible.
 
 -   [*Total Size*](#dmac-total-size-register): Size of the data object to be pushed
-    into the FIFO
+    into the FIFO.
 -   [*Transfer Size*](#dmac-transfer-size-register): Write Data width of the LSIO FIFO
-    register. Each write transaction is equal to this size
+    register. Each write transaction is equal to this size.
 -   [*Limit register*](#dmac-memory-buffer-limit-low-register): Marks the end of the memory
     buffer used to read ‘total size’ worth of data segments if
     auto-increment feature is used. DMAC shall set an overflow
@@ -205,7 +205,7 @@ hardware handshake DMA operation
 -   [*DMAC Control register*](#dmac-control-register)
 
     -   Opcode: Type of operation requested. Typically set to copy
-        operation in case of hardware handshake mode of operation
+        operation in case of hardware handshake mode of operation.
 
     -   Hardware handshake enable = 1
 
@@ -225,37 +225,37 @@ hardware handshake DMA operation
         equivalent amount of data is written to the FIFO. If auto
         increment feature is not set, then the same memory buffer
         segment gets read each time an interrupt triggers the DMA
-        based hardware handshake operation
+        based hardware handshake operation.
 
-    -   Go = 1 to start the operation
+    -   Go = 1 to start the operation.
 
--   DMA engines start listening to input interrupt
+-   DMA engines start listening to input interrupt.
 -   Low speed IO peripheral FIFO asserts interrupt once FIFO reaches a
-    certain ‘almost empty’ threshold
+    certain ‘almost empty’ threshold.
 -   The DMA engine reads the total size number of bytes from the source
     address register (memory) and writes them into the FIFO register.
-    Width of each write is equal to the transfer size setting
+    Width of each write is equal to the transfer size setting.
 -   ***Note**: assumption is the peripheral lowers ‘almost empty’
-    interrupt once FIFO is filled. No explicit clearing necessary*
+    interrupt once FIFO is filled. No explicit clearing necessary.
 -   The DMA engine increments the source and destination address
     register if respective auto-increment enable is set.
 -   DMA engine waits for the interrupt to get asserted again (i.e. waits
-    for FIFO to be almost empty)
+    for FIFO to be almost empty).
 
 ## Security Considerations
 
-The DMA controller provides the following security value
+The DMA controller provides the following security value:
 
--   Separation of roles and responsibilities
+-   Separation of roles and responsibilities.
 
     -   Ibex core involved in control / configuration, security
-        monitoring operations
+        monitoring operations.
 
     -   DMA controller involved in data movement & corresponding
-        hardware enforced checks
+        hardware enforced checks.
 
 -   DMA engine acts as the boundary between OT secure components & the
-    SoC for data movement
+    SoC for data movement.
 -   While moving data from the SoC to OpenTitan, the DMA controller
     protects the Ibex core by staging the moved data into a DMA enabled
     memory location and providing an opportunity to perform additional
@@ -278,9 +278,9 @@ true:
 -   DMA Controller configuration shall be under OpenTitan firmware (Ibex
     core) control only.
 -   External agents to the OpenTitan secure boundary *shall not* have
-    access the DMA registers
+    access the DMA registers.
 -   Following restrictions to data movement are observed and enforced by
-    the DMA controller
+    the DMA controller.
 
 <table>
 <tbody>
@@ -315,21 +315,21 @@ true:
 ### DMAC HW Enforced Security Checks
 
 -   DMA enabled memory range registers are configured & locked prior to
-    starting any DMA operation
+    starting any DMA operation.
 -   If the configured source address space ID is SOC (CTN or System) and
     destination address space ID is OT internal, then destination
-    address pointer must lie within the DMA enabled memory range
+    address pointer must lie within the DMA enabled memory range.
 -   If the configured destination address space ID is SOC (CTN or
     System) and source address space ID is OT internal, then source
-    address pointer must lie within the DMA enabled memory range
+    address pointer must lie within the DMA enabled memory range.
 -   If source (or destination) address space ID is set to CTN, then read
     (or write transactions) are sent to CTN port only. If CTN port is
     configured to be 32 bits, then make sure that the upper 32 bits of
-    the source (or destination) address register pointer are all zeroes
+    the source (or destination) address register pointer are all zeroes.
 -   If source (or destination) address space ID is set to OT Internal,
     then read (or write transactions) are sent to OT internal port only.
     Make sure that the upper 32 bits of the source (or destination)
-    address register pointer are all zeroes
+    address register pointer are all zeroes.
 -   If source (or destination) address space ID is set to System, then
     read (or write transactions) are sent to system port only. Full 64
     bits of the source (or destination) address pointer is available.
@@ -465,14 +465,14 @@ true:
 |                                   |           |                    |                                                                                                    |
 |-----------------------------------|-----------|--------------------|----------------------------------------------------------------------------------------------------|
 | **Register**                      | **Width** | **Bit Definition** | **Notes**                                                                                          |
-| DMA Enabled Memory Range Register | 32 bits   | Base \[31:0\]      | Base Address to mark the start of the DMA enabled memory range within the OT internal memory space |
+| DMA Enabled Memory Range Register | 32 bits   | Base \[31:0\]      | Base Address to mark the start of the DMA enabled memory range within the OT internal memory space. |
 
 ### DMAC DMA Enabled Memory Range Limit Register
 
 |                                   |           |                    |                                                                                            |
 |-----------------------------------|-----------|--------------------|--------------------------------------------------------------------------------------------|
 | **Register**                      | **Width** | **Bit Definition** | **Notes**                                                                                  |
-| DMA Enabled Memory Range Register | 32 bits   | Limit \[31:0\]     | Limit to mark the end of the DMA enabled kmemory range within the OT internal memory space |
+| DMA Enabled Memory Range Register | 32 bits   | Limit \[31:0\]     | Limit to mark the end of the DMA enabled kmemory range within the OT internal memory space. |
 
 ### DMAC Range Lock Register
 
@@ -491,7 +491,7 @@ true:
 <td><p>Default Value = MuBi4True,<br />
 i.e. unlocked @ reset</p>
 <p>Set by firmware to zero to lock the DMA Enabled memory range configuration registers from further modification.</p>
-<p>This bit, once set, can be cleared only upon a reset event </p></td>
+<p>This bit, once set, can be cleared only upon a reset event. </p></td>
 </tr>
 <tr class="odd">
 <td>Reserved [31:4]</td>
@@ -516,8 +516,8 @@ i.e. unlocked @ reset</p>
 <td>Data Size[31:0]</td>
 <td><p>Total Size (in bytes) of the data blob involved in data movement</p>
 <p><em>Minimum: 1 bytes</em></p>
-<p><em>Maximum: May be restricted to a maximum pre-defined size based on OT DMA enabled memory space allocation</em></p>
-<p>Works in conjunction with Transfer size register below </p></td>
+<p><em>Maximum: May be restricted to a maximum pre-defined size based on OT DMA enabled memory space allocation.</em></p>
+<p>Works in conjunction with Transfer size register below. </p></td>
 </tr>
 </tbody>
 </table>
@@ -563,8 +563,8 @@ i.e. unlocked @ reset</p>
 <td>Memory buffer limit register</td>
 <td>32 bits</td>
 <td>Address Limit Low [31:0]</td>
-<td><p>Limit address configuration. Used in conjunction with the address auto-increment mode for hardware handshake operation to generate an interrupt when buffer address reaches this value</p>
-<p><em>This field is considered if and only if DMAC Control Register.Auto-increment Enable[7:7]</em> bit is set</p></td>
+<td><p>Limit address configuration. Used in conjunction with the address auto-increment mode for hardware handshake operation to generate an interrupt when buffer address reaches this value.</p>
+<p><em>This field is considered if and only if DMAC Control Register.Auto-increment Enable[7:7]</em> bit is set.</p></td>
 </tr>
 </tbody>
 </table>
@@ -583,8 +583,8 @@ i.e. unlocked @ reset</p>
 <td>Memory buffer limit register</td>
 <td>32 bits</td>
 <td>Address Limit High [63:32]</td>
-<td><p>Limit address configuration. Used in conjunction with the address auto-increment mode for hardware handshake operation to generate an interrupt when buffer address reaches this value</p>
-<p><em>This field is considered if and only if DMAC Control Register.Auto-increment Enable[7:7]</em> bit is set</p></td>
+<td><p>Limit address configuration. Used in conjunction with the address auto-increment mode for hardware handshake operation to generate an interrupt when buffer address reaches this value.</p>
+<p><em>This field is considered if and only if DMAC Control Register.Auto-increment Enable[7:7]</em> bit is set.</p></td>
 </tr>
 </tbody>
 </table>
@@ -603,8 +603,8 @@ i.e. unlocked @ reset</p>
 <td>Memory buffer threshold register</td>
 <td>32 bits</td>
 <td>Address Limit Low [31:0]</td>
-<td><p>Threshold for detecting that the buffer limit is approaching so as to prevent destination buffer overflow. Used in conjunction with the address auto-increment mode for hardware handshake operation to generate an interrupt when the buffer address approaches <em>close to the buffer (i.e. reaches this value)</em> address limit. Enables firmware to take appropriate action prior to reaching the final limit</p>
-<p><em>This field is optional. However this field is expected to be implicitly valid if DMAC Control Register.Auto-increment Enable[7:7]</em> bit is set</p></td>
+<td><p>Threshold for detecting that the buffer limit is approaching so as to prevent destination buffer overflow. Used in conjunction with the address auto-increment mode for hardware handshake operation to generate an interrupt when the buffer address approaches <em>close to the buffer (i.e. reaches this value)</em> address limit. Enables firmware to take appropriate action prior to reaching the final limit.</p>
+<p><em>This field is optional. However this field is expected to be implicitly valid if DMAC Control Register.Auto-increment Enable[7:7]</em> bit is set.</p></td>
 </tr>
 </tbody>
 </table>
@@ -623,8 +623,8 @@ i.e. unlocked @ reset</p>
 <td>Memory buffer threshold register</td>
 <td>32 bits</td>
 <td>Address Limit High [63:32]</td>
-<td><p>Threshold for detecting that the buffer limit is approaching so as to prevent destination buffer overflow. Used in conjunction with the address auto-increment mode for hardware handshake operation to generate an interrupt when the buffer address approaches <em>close to the buffer (i.e. reaches this value)</em> address limit. Enables firmware to take appropriate action prior to reaching the final limit</p>
-<p><em>This field is optional. However this field is expected to be implicitly valid if DMAC Control Register.Auto-increment Enable[7:7]</em> bit is set</p></td>
+<td><p>Threshold for detecting that the buffer limit is approaching so as to prevent destination buffer overflow. Used in conjunction with the address auto-increment mode for hardware handshake operation to generate an interrupt when the buffer address approaches <em>close to the buffer (i.e. reaches this value)</em> address limit. Enables firmware to take appropriate action prior to reaching the final limit.</p>
+<p><em>This field is optional. However this field is expected to be implicitly valid if DMAC Control Register.Auto-increment Enable[7:7]</em> bit is set.</p></td>
 </tr>
 </tbody>
 </table>
@@ -661,7 +661,7 @@ i.e. unlocked @ reset</p>
 <tr class="even">
 <td>Hardware handshake Enable [6:6]</td>
 <td><p>Enable hardware handshake mode</p>
-<p>Used to push / pop FIFOs to / from low speed IO peripherals receiving data e.g. I3C receive buffer </p></td>
+<p>Used to push / pop FIFOs to / from low speed IO peripherals receiving data e.g. I3C receive buffer. </p></td>
 </tr>
 <tr class="odd">
 <td>Memory Buffer Auto-increment Enable[7:7]</td>
@@ -673,17 +673,17 @@ i.e. unlocked @ reset</p>
 <td>FIFO Auto-increment Enable[8:8]</td>
 <td><p>Used in conjunction with the hardware handshake mode of operation.</p>
 <p>If set, reads/writes from/to incremental addresses for FIFO data register addresses.</p>
-<p>Else uses the same address for subsequent transactions </p></td>
+<p>Else uses the same address for subsequent transactions. </p></td>
 </tr>
 <tr class="odd">
 <td>Data Direction[9:9]</td>
-<td><p>Used in Conjunction with the hardware handshake enable</p>
+<td><p>Used in Conjunction with the hardware handshake enable.</p>
 <p>0: Rcv data from LSIO FIFO to mem buffer</p>
 <p>1: Send data from mem buffer to LSIO FIFO</p></td>
 </tr>
 <tr class="even">
 <td>Interrupt Enable[10:10]</td>
-<td>Assert an interrupt when done bit is set</td>
+<td>Assert an interrupt when done bit is set.</td>
 </tr>
 <tr class="odd">
 <td>Reserved[26:11]</td>
@@ -722,20 +722,20 @@ i.e. unlocked @ reset</p>
 <td rowspan="5">32 bits</td>
 <td>Busy[0:0]</td>
 <td><p>DMA operation is active if this bit is set.</p>
-<p>DMA engine clears this bit when operation is complete</p>
-<p>This bit may be set as long as hardware handshake mode is active and triggered</p></td>
+<p>DMA engine clears this bit when operation is complete.</p>
+<p>This bit may be set as long as hardware handshake mode is active and triggered.</p></td>
 </tr>
 <tr class="odd">
 <td>Done[1:1]</td>
-<td>Configured DMA operation is complete</td>
+<td>Configured DMA operation is complete.</td>
 </tr>
 <tr class="even">
 <td>Aborted[2:2]</td>
-<td>Indicates that the operation was aborted based on input of the DMAC control register</td>
+<td>Indicates that the operation was aborted based on input of the DMAC control register.</td>
 </tr>
 <tr class="odd">
 <td>Error[3:3]</td>
-<td>Flag indicating an operation error happened</td>
+<td>Flag indicating an operation error happened.</td>
 </tr>
 <tr class="even">
 <td>Error Code</td>
@@ -757,7 +757,7 @@ i.e. unlocked @ reset</p>
 <td>NA bits</td>
 <td>int_state[0:0]</td>
 <td><p>Auto-inserted by the regtool.</p>
-<p>Please refer to the <a href="https://docs.opentitan.org/doc/rm/comportability_specification/#interrupt-handling"><em>OpenTitan Comportable interrupt definition</em></a> for further details</p></td>
+<p>Please refer to the <a href="https://docs.opentitan.org/doc/rm/comportability_specification/#interrupt-handling"><em>OpenTitan Comportable interrupt definition</em></a> for further details.</p></td>
 </tr>
 </tbody>
 </table>
@@ -777,7 +777,7 @@ i.e. unlocked @ reset</p>
 <td>NA bits</td>
 <td>int_enable[0:0]</td>
 <td><p>Auto-inserted by the regtool.</p>
-<p>Please refer to the <a href="https://docs.opentitan.org/doc/rm/comportability_specification/#interrupt-handling"><em>OpenTitan Comportable interrupt definition</em></a> for further details</p></td>
+<p>Please refer to the <a href="https://docs.opentitan.org/doc/rm/comportability_specification/#interrupt-handling"><em>OpenTitan Comportable interrupt definition</em></a> for further details.</p></td>
 </tr>
 </tbody>
 </table>
@@ -797,7 +797,7 @@ i.e. unlocked @ reset</p>
 <td>NA bits</td>
 <td>int_test[0:0]</td>
 <td><p>Auto-inserted by the regtool.</p>
-<p>Please refer to the <a href="https://docs.opentitan.org/doc/rm/comportability_specification/#interrupt-handling"><em>OpenTitan Comportable interrupt definition</em></a> for further details </p></td>
+<p>Please refer to the <a href="https://docs.opentitan.org/doc/rm/comportability_specification/#interrupt-handling"><em>OpenTitan Comportable interrupt definition</em></a> for further details. </p></td>
 </tr>
 </tbody>
 </table>
@@ -807,7 +807,7 @@ i.e. unlocked @ reset</p>
 DMA requests are initiated by the system software (or SoC firmware
 agent) through the appropriately defined [*DOE mailbox
 objects*](#kix.9zytzm6px4vu). Completion status of the DMA operation to
-the original requested is done via the DOE response object mechanism
+the original requested is done via the DOE response object mechanism.
 
 ### DMAC Clear Status Register
 
@@ -825,7 +825,7 @@ the original requested is done via the DOE response object mechanism
 <td>Clear[31:0]</td>
 <td><p>A write to this register &lt;Value is a don’t care&gt;</p>
 <p>Clears the following DMA controller state:</p>
-<p>Done Status, Error Status, Error Code, Done Interrupt </p></td>
+<p>Done Status, Error Status, Error Code, Done Interrupt.</p></td>
 </tr>
 </tbody>
 </table>
@@ -841,7 +841,7 @@ use cases:
     and throughput) than separating the data transfer from the
     cryptographic operation.
 2.  Hashing data on-the-fly and only writing the resulting hash to the
-    target memory
+    target memory.
 
     1.  removes size restrictions on the data to be hashed, which would
         otherwise have to fit OT-internal memory, and
@@ -950,12 +950,12 @@ register is incremented by ‘[*Total Size*](#dmac-total-size-register)’
 once an equivalent amount of data is emptied from the FIFO & written to
 the buffer segment. If auto increment feature is not set, then the
 memory buffer gets overwritten each time the low speed device triggers
-the DMA based hardware handshake operation
+the DMA based hardware handshake operation.
 
 \<---
 
 In case of the FIFO address auto-increment enable mode is set, then the
-FIFO is read / written at the same address i.e. from your example above
+FIFO is read / written at the same address i.e. from your example above:
 
 transfer 0 FIFO addr: 0x0 ; transfer 0 SRAM buffer addr: 0x0
 
@@ -1014,7 +1014,7 @@ transfer 5 FIFO addr: 0x8 ; transfer 0 SRAM buffer addr: 0x14
 
 (note that the FIFO address will increment only upto the FIFO depth -
 here we are assuming a depth of 3, so it increments 0, 4, 8 and then
-again 0, 4, 8 in the next transfer)
+again 0, 4, 8 in the next transfer.)
 
 Also note that all combinations of the two increment enable bits (FIFO
-and SRAM buffer) are possible
+and SRAM buffer) are possible.

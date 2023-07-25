@@ -3,18 +3,18 @@
 The integrated version of OpenTitan root of trust may provide security
 services to the system on chip (SoC) such as:
 
--   Encryption or decryption of data blobs
--   Cryptographic hashing of data blobs
--   Key derivation
--   Random seed generation service
--   Public key signing
--   Public key verification
--   Root of trust for measurement, reporting and storage
--   Secure firmware update
--   Access to secure storage
--   Mutual authentication / attestation services
--   SoC security monitoring / book-keeping services
--   Debug authentication / unlock service
+-   Encryption or decryption of data blobs.
+-   Cryptographic hashing of data blobs.
+-   Key derivation.
+-   Random seed generation service.
+-   Public key signing.
+-   Public key verification.
+-   Root of trust for measurement, reporting and storage.
+-   Secure firmware update.
+-   Access to secure storage.
+-   Mutual authentication / attestation services.
+-   SoC security monitoring / book-keeping services.
+-   Debug authentication / unlock service.
 
 Such operations require movement of bulk data from SoC / system memory
 to the OpenTitan (OT) private memory and vice-versa. The Secure DMA
