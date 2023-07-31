@@ -41,10 +41,10 @@ the OT Trusted Compute Boundary
 
 -   Through the mailbox interface following information may be passed:
 
-    -   Source address pointer & Address space Identifier for the source
+    -   Source address pointer & address space identifier for the source
         address.
 
-    -   Destination address pointer & Address space Identifier of the
+    -   Destination address pointer & address space identifier of the
         destination address.
 
     -   Size of the data object to be moved.
@@ -121,7 +121,7 @@ hardware handshake DMA operation.
     receive FIFO read out register.
 -   [*Destination address*](../data/dma.hjson#destination_address_lo): address to the memory
     buffer where received data is placed.
--   [*Address space ID*](../data/dma.hjson#address_space_id): (OT Internal, CTN or System)
+-   [*Address space ID*](../data/dma.hjson#address_space_id) (ASID): (OT Internal, CTN or System)
 
     -   Source ASID: Specify the address space in which the LSIO FIFO is
         visible.
@@ -186,7 +186,7 @@ hardware handshake DMA operation.
     memory buffer.
 -   [*Destination address*](../data/dma.hjson#destination_address_lo): pointer to the FIFO
     register.
--   [*Address space ID*](../data/dma.hjson#address_space_id): (OT Internal, CTN or System)
+-   [*Address space ID*](../data/dma.hjson#address_space_id) (ASID): (OT Internal, CTN or System)
 
     -   Source ASID: Specify the address space in which the source
         buffer resides.
