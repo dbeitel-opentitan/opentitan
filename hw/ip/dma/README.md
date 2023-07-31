@@ -52,7 +52,7 @@ Controller and are described in more detail in [*Extension: Inline
 Operations*](./doc/theory_of_operation.md#extension-inline-operations).
 
 The DMA controller shall be used in conjunction with the
-[*OpenTitan mailbox interface*](https://opentitan.org/book/hw/ip/mbx/index.html): The Ibex CPU reads
+[*OpenTitan mailbox interface*](): The Ibex CPU reads
 and parses pre-defined mailbox command objects, sanitizes DMA parameters
 (such as the desired DMA operation and SoC memory addresses) from an
 object, and configures the DMA controller accordingly. Note that

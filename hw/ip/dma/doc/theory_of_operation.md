@@ -36,7 +36,7 @@ the OT Trusted Compute Boundary
     digital signing etc. Such an operation is requested using the
     Mailbox interface and may involve bulk data movement.
 
-    -   Please refer to the [*mailbox specification*](https://opentitan.org/book/hw/ip/mbx/index.html)
+    -   Please refer to the [*mailbox specification*]()
         for further details on the mailbox structure.
 
 -   Through the mailbox interface following information may be passed:
@@ -338,7 +338,7 @@ true:
 
 DMA requests are initiated by the system software (or SoC firmware
 agent) through the appropriately defined [*DOE mailbox
-objects*](https://opentitan.org/book/hw/ip/mbx/index.html). Completion status of the DMA operation to
+objects*](). Completion status of the DMA operation to
 the original requested is done via the DOE response object mechanism.
 
 ## Extension: Inline Operations
