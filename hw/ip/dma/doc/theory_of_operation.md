@@ -135,7 +135,7 @@ hardware handshake DMA operation.
 -   [*Transfer Width*](../data/dma.hjson#transfer_width): Width of each transaction
     (equivalent to FIFO read data width).
 -   [*Limit register*](../data/dma.hjson#destination_address_limit_lo): Marks the end of the buffer used
-    to write ‘total size’ worth of data payloads if memory buffer
+    to write 'total size' worth of data payloads if memory buffer
     auto-increment feature is used. DMAC shall set an overflow
     indication if the buffer limit is reached.
 -   [*DMAC Control register*](../data/dma.hjson#control):
@@ -148,17 +148,17 @@ hardware handshake DMA operation.
     -   Data Direction = 0 (receive)
 
     -   FIFO address auto-increment enable: If set, consecutive
-        ‘transfer width’ worth of data chunks are popped from the FIFO
+        'transfer width' worth of data chunks are popped from the FIFO
         using consecutive register addresses. If not enabled,
         consecutive data chunks are popped by repeatedly reading the
         same register address.
 
     -   Data buffer Auto-increment Enable: If set to 1, data shall be
         loaded into consecutive buffer segments in memory, where each
-        segment is equivalent to ‘total size’ worth of data. To
+        segment is equivalent to 'total size' worth of data. To
         prepare for the next data buffer segment, [*Destination
-        address*](../data/dma.hjson#destination_address_lo) register is incremented by ‘[*Total
-        Size*](../data/dma.hjson#total-data-size)’ once an equivalent amount of data is
+        address*](../data/dma.hjson#destination_address_lo) register is incremented by '[*Total
+        Size*](../data/dma.hjson#total-data-size)' once an equivalent amount of data is
         emptied from the FIFO & written to the buffer segment. If auto
         increment feature is not set, then the memory buffer gets
         overwritten each time the low speed device triggers the DMA
@@ -169,10 +169,10 @@ hardware handshake DMA operation.
 -   DMA engines start listening to input interrupt.
 -   Low speed IO peripheral FIFO asserts interrupt once FIFO reaches a
     certain threshold.
--   The DMA engine reads the ‘total size’ number of bytes from the
+-   The DMA engine reads the 'total size' number of bytes from the
     pointer in source address register (receive FIFO) and places them in
     the destination buffer. Note that width of each read is per the
-    ‘transfer width’ setting.
+    'transfer width' setting.
 -   **Note**: *assumption is the peripheral lowers input once FIFO is
     cleared. No explicit clearing necessary.*
 -   The DMA engine increments the source and destination address
@@ -199,7 +199,7 @@ hardware handshake DMA operation.
 -   [*Transfer Width*](../data/dma.hjson#transfer_width): Write Data width of the LSIO FIFO
     register. Each write transaction is equal to this size.
 -   [*Limit register*](../data/dma.hjson#destination_address_limit_lo): Marks the end of the memory
-    buffer used to read ‘total size’ worth of data segments if
+    buffer used to read 'total size' worth of data segments if
     auto-increment feature is used. DMAC shall set an overflow
     indication if the buffer limit is reached.
 -   [*DMAC Control register*](../data/dma.hjson#control)
@@ -211,8 +211,8 @@ hardware handshake DMA operation.
 
     -   Data Direction = 1 (send)
 
-    -   FIFO address auto-increment enabled if consecutive ‘transfer
-        size’ worth of data chunks are pushed to the FIFO using
+    -   FIFO address auto-increment enabled if consecutive 'transfer
+        size' worth of data chunks are pushed to the FIFO using
         consecutive register addresses. If not enabled, consecutive
         data chunks are pushed by repeatedly writing the same register
         address.
@@ -221,7 +221,7 @@ hardware handshake DMA operation.
         read from consecutive buffer spaces, each equivalent to 'total
         size' worth of data. To prepare for the next data buffer
         segment [*Source address*](../data/dma.hjson#source_address_lo) register is
-        incremented by ‘[*Total Size*](../data/dma.hjson#total-data-size)’ once the
+        incremented by '[*Total Size*](../data/dma.hjson#total-data-size)' once the
         equivalent amount of data is written to the FIFO. If auto
         increment feature is not set, then the same memory buffer
         segment gets read each time an interrupt triggers the DMA
@@ -231,11 +231,11 @@ hardware handshake DMA operation.
 
 -   DMA engines start listening to input interrupt.
 -   Low speed IO peripheral FIFO asserts interrupt once FIFO reaches a
-    certain ‘almost empty’ threshold.
+    certain 'almost empty' threshold.
 -   The DMA engine reads the total size number of bytes from the source
     address register (memory) and writes them into the FIFO register.
     Width of each write is equal to the transfer width setting.
--   ***Note**: assumption is the peripheral lowers ‘almost empty’
+-   ***Note**: assumption is the peripheral lowers 'almost empty'
     interrupt once FIFO is filled. No explicit clearing necessary.
 -   The DMA engine increments the source and destination address
     register if respective auto-increment enable is set.
@@ -285,7 +285,7 @@ true:
 <table>
 <tbody>
 <tr class="odd">
-<td><p>From →</p>
+<td><p>From -></p>
 <p>To ↓</p></td>
 <td>OT Private Memory</td>
 <td>OT DMA Memory</td>
@@ -448,16 +448,16 @@ confidential computing) when exposing Integrated OT as a PCIe device.
 
 ## Appendix
 
-FIFO address auto-increment enable: If set, consecutive ‘transfer width
+FIFO address auto-increment enable: If set, consecutive 'transfer width'
 worth of data chunks are popped from the FIFO using consecutive register
 addresses. If not enabled, consecutive data chunks are popped by
 repeatedly reading the same register address.
 
 Data buffer Auto-increment Enable: If set to 1, data shall be loaded
 into consecutive buffer segments in memory, where each segment is
-equivalent to ‘total size’ worth of data. To prepare for the next data
+equivalent to 'total size' worth of data. To prepare for the next data
 buffer segment, *Destination address*
-register is incremented by ‘[*Total Size*](../data/dma.hjson#total-data-size)’
+register is incremented by '[*Total Size*](../data/dma.hjson#total-data-size)'
 once an equivalent amount of data is emptied from the FIFO & written to
 the buffer segment. If auto increment feature is not set, then the
 memory buffer gets overwritten each time the low speed device triggers

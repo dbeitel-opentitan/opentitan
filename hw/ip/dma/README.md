@@ -58,6 +58,6 @@ and parses pre-defined mailbox command objects, sanitizes DMA parameters
 object, and configures the DMA controller accordingly. Note that
 addresses here are treated as IO virtual addresses. Deliberately, there
 is no hardware interface that would allow the SoC to control the DMA
-Controller. Please refer to the ‘[*Access to SoC address
-space*]()’
+Controller. Please refer to the '[*Access to SoC address
+space*]()'
 page for more details on handling of SoC level memory operations.
