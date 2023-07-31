@@ -83,7 +83,7 @@ the OT Trusted Compute Boundary
     subject to additional protection schemes - either using
     cryptographic techniques or access control based isolation
     techniques.*
--   *External agents <ins>shall not have direct access</ins> to any addressable
+-   *External agents **shall not have direct access** to any addressable
     regions within OT address space other than the mailbox registers.*
 -   *The DMA controller shall support hardware range registers to
     configure the address range for DMA enabled OT memory. Range
@@ -282,35 +282,11 @@ true:
 -   Following restrictions to data movement are observed and enforced by
     the DMA controller.
 
-<table>
-<tbody>
-<tr class="odd">
-<td><p>From -></p>
-<p>To ↓</p></td>
-<td>OT Private Memory</td>
-<td>OT DMA Memory</td>
-<td>SoC Memory</td>
-</tr>
-<tr class="even">
-<td>OT Private Memory</td>
-<td>✔</td>
-<td>✔</td>
-<td>❌</td>
-</tr>
-<tr class="odd">
-<td>OT DMA Memory</td>
-<td>✔</td>
-<td>✔</td>
-<td>✔</td>
-</tr>
-<tr class="even">
-<td>SoC Memory</td>
-<td>❌</td>
-<td>✔</td>
-<td>✔</td>
-</tr>
-</tbody>
-</table>
+| From -> , To ↓    | OT Private Memory | OT DMA Memory | SoC Memory |
+|-------------------|-------------------|---------------|------------|
+| OT Private Memory | ✔                 | ✔             | ❌         |
+| OT DMA Memory     | ✔                 | ✔             | ✔          |
+| SoC Memory        | ❌                | ✔             | ✔          |
 
 ### DMAC HW Enforced Security Checks
 
@@ -416,35 +392,14 @@ confidential computing) when exposing Integrated OT as a PCIe device.
 
 ## References
 
-<table>
-<tbody>
-<tr class="even">
-<td>OpenTitan Documentation </td>
-<td><a href="https://docs.opentitan.org/"><em>https://docs.opentitan.org/</em></a></td>
-</tr>
-<tr class="odd">
-<td>PCIe Specification</td>
-<td><a href="https://members.pcisig.com/wg/PCI-SIG/document/18363"><em>PCI Express</em></a></td>
-</tr>
-<tr class="even">
-<td>CXL Specification</td>
-<td><a href="https://www.computeexpresslink.org/download-the-specification"><em>Compute Express Link</em></a></td>
-</tr>
-<tr class="odd">
-<td>SPDM</td>
-<td><p><a href="https://www.dmtf.org/dsp/DSP0274"><em>https://www.dmtf.org/dsp/DSP0274</em></a></p>
-<p>CMA requires SPDM Version 1.0 or above</p></td>
-</tr>
-<tr class="even">
-<td>SPDM-MCTP</td>
-<td><a href="https://www.dmtf.org/dsp/DSP0275"><em>https://www.dmtf.org/dsp/DSP0275</em></a></td>
-</tr>
-<tr class="odd">
-<td>Secured SPDM</td>
-<td><a href="https://www.dmtf.org/dsp/DSP0277"><em>https://www.dmtf.org/dsp/DSP0277</em></a></td>
-</tr>
-</tbody>
-</table>
+| Reference title         | Link and description |
+|-------------------------|----------------------|
+| OpenTitan Documentation | [docs.opentitan.org](https://docs.opentitan.org/) |
+| PCIe Specification      | [PCI Express](https://members.pcisig.com/wg/PCI-SIG/document/18363) |
+| CXL Specification       | [Compute Express Link](https://www.computeexpresslink.org/download-the-specification) |
+| SPDM                    | [CMA requires SPDM Version 1.0 or above](https://www.dmtf.org/dsp/DSP0274) |
+| SPDM-MCTP               | [dmtf.org/dsp/DSP0275](https://www.dmtf.org/dsp/DSP0275) |
+| Secured SPDM            | [dmtf.org/dsp/DSP0277](https://www.dmtf.org/dsp/DSP0277) |
 
 ## Appendix
 
