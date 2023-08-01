@@ -1939,6 +1939,326 @@ format&gt;
 </tr>
 </table>
 
+External DOE Registers
+-----------------------
+
+Note : The DOE mailbox is accessible in two different forms
+
+1.  PCIe compatible DOE mailbox - exposed as part of the PCIe configuration space.
+    The [DOE Extended Capability Header](#doe-extended-capability-header) and the [DOE Capability Header](#doe-capability-header) registers are supported for such a DOE mailbox instance only.
+2.  Firmware to Firmware communication mailboxes - uses the same underlying mechanism to transferring data objects between a firmware requester and a firmware responder.
+    However such mailboxes do not require the DOE capability registers.
+    For such mailbox instances, these address offsets are utilized to specify / configure the address of the register where a doorbell interrupt shall be sent as well as the corresponding data to be sent.
+
+### DOE Extended Capability Header
+
+Address Offset 0x00
+
+Note : This is a read-only register.
+
+<table markdown="1" class="c121">
+<tr markdown="1" class="c5">
+<td markdown="1" class="c56 c76" colspan="1" rowspan="1">Register</td>
+<td markdown="1" class="c47" colspan="1" rowspan="1">Width</td>
+<td markdown="1" class="c39" colspan="1" rowspan="1">Bit Pos</td>
+<td markdown="1" class="c105 c76" colspan="1" rowspan="1">Bit Definition</td>
+<td markdown="1" class="c54 c76" colspan="1" rowspan="1">Notes</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c56" colspan="1" rowspan="3">DOE Extended Capability Header</td>
+<td markdown="1" class="c64" colspan="1" rowspan="3">32 bits</td>
+<td markdown="1" class="c43" colspan="1" rowspan="1">15:0</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">Capability ID</td>
+<td markdown="1" class="c54" colspan="1" rowspan="1">
+PCIe defined Capability ID
+
+Should read value of 0x002E for DOE capability
+</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">19:16</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">Capability Version</td>
+<td markdown="1" class="c54" colspan="1" rowspan="1">
+Second version;
+
+Value of 2
+</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">31:20</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">Next Capability Offset</td>
+<td markdown="1" class="c54" colspan="1" rowspan="1">
+Offset to the next capability structure.
+Equal to zero if no other items exist.
+Can be tool generated to link to other extended capabilities that may be supported.
+</td>
+</tr>
+</table>
+
+### DOE Capability Header
+
+Address Offset 0x04
+
+Note : This is a read-only register.
+
+<table markdown="1" class="c121">
+<tr markdown="1" class="c5">
+<td markdown="1" class="c56 c76" colspan="1" rowspan="1">Register</td>
+<td markdown="1" class="c47" colspan="1" rowspan="1">Width</td>
+<td markdown="1" class="c39" colspan="1" rowspan="1">Bit Pos</td>
+<td markdown="1" class="c105 c76" colspan="1" rowspan="1">Bit Definition</td>
+<td markdown="1" class="c54 c76" colspan="1" rowspan="1">Notes</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c56" colspan="1" rowspan="3">DOE Capability Header</td>
+<td markdown="1" class="c64" colspan="1" rowspan="3">32 bits</td>
+<td markdown="1" class="c43" colspan="1" rowspan="1">0</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">DOE Interrupt Support</td>
+<td markdown="1" class="c54" colspan="1" rowspan="1">
+One when interrupts are supported.
+In the PCIe world, this means MSI/MSI-x support.
+</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">11:1</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">DOE Interrupt Message number</td>
+<td markdown="1" class="c54" colspan="1" rowspan="1">
+When value is 0:
+
+-   Responder only support MSI (not MSI-X); and same message data for all interrupts including the DOE interrupt.
+-   MSI address/data pairs are configured in the MSI or MSI-X capability of the PCIe function hosting the mailbox.
+    When MSI-X is implemented, this message number indexes into the table of address/data pairs to determine the one to use.
+
+**Note:** Non-PCIe DOE mailboxes (e.g. Firmware - Firmware communication mailbox) may use the wired interrupt capability.
+[Please see above for interrupt support.](#integrated-opentitan-usage-of-doe-mailbox-mechanism)
+</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">31:12</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">Reserved</td>
+<td markdown="1" class="c54" colspan="1" rowspan="1">
+
+</td>
+</tr>
+</table>
+
+### DOE Interrupt Message Address Register
+
+Address Offset 0x00
+
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><p>Register</p></td>
+<td><p>Width</p></td>
+<td><p>Bit Pos</p></td>
+<td><p>Bit Definition</p></td>
+<td><p>Notes</p></td>
+</tr>
+<tr class="even">
+<td><p>DOE  Interrupt message  address  register </p></td>
+<td><p>32 bits</p></td>
+<td><p>31:0</p></td>
+<td><p>Interrupt Register Address</p></td>
+<td>
+    <p>Defined only  in case of a firmware to firmware mailbox communication.</p>
+    <p>Utilized by the mailbox responder to send an interrupt message to the requester via a write to the configured address.</p>
+    <p>
+        Note that such FW 2 FW mailboxes may primarily be accessible in the CTN address space.
+        As such the configured address is part of the SoC CTN address space.
+    </p>
+</td>
+</tr>
+</tbody>
+</table>
+
+### DOE Interrupt Message Data Register
+
+Address Offset 0x04
+
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><p>Register</p></td>
+<td><p>Width</p></td>
+<td><p>Bit Pos</p></td>
+<td><p>Bit Definition</p></td>
+<td><p>Notes</p></td>
+</tr>
+<tr class="even">
+<td><p>DOE Interrupt message  data  register </p></td>
+<td><p>32 bits</p></td>
+<td><p>31:0</p></td>
+<td><p>Interrupt Register Data</p></td>
+<td><p>Interrupt message data to be sent to the address configured in <a href="#IntegratedOpenTitanDOEMailboxInterface.xhtml#h.qwujw3wrfn70" class="c63">register above</a> </p></td>
+</tr>
+</tbody>
+</table>
+
+### DOE  Control Register
+
+Address Offset 0x08
+
+Please refer to Table 7-315 of the PCIe specification for detailed information on this register.
+
+<table markdown="1" class="c121">
+<tr markdown="1" class="c5">
+<td markdown="1" class="c56 c76" colspan="1" rowspan="1">Register</td>
+<td markdown="1" class="c47" colspan="1" rowspan="1">Width</td>
+<td markdown="1" class="c39" colspan="1" rowspan="1">Bit Pos</td>
+<td markdown="1" class="c105 c76" colspan="1" rowspan="1">Bit Definition</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c56" colspan="1" rowspan="6">DOE Control Register</td>
+<td markdown="1" class="c64" colspan="1" rowspan="6">32 bits</td>
+<td markdown="1" class="c43" colspan="1" rowspan="1">0</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">DOE Abort</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">1</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">DOE Interrupt Enable</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">2</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">
+
+&lt;TBD&gt;
+
+</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">3</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">DOE Async Message Enable</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">30:4</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">Reserved</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">31</td>
+<td markdown="1" class="c105" colspan="1" rowspan="1">DOE Go</td>
+</tr>
+</table>
+
+### DOE Status Register
+
+Address Offset 0x0C
+
+Please refer to Table 7-316 from the PCIe specification for details on this register.
+
+<table markdown="1" class="c121">
+<tr markdown="1" class="c5">
+<td markdown="1" class="c56 c76" colspan="1" rowspan="1">Register</td>
+<td markdown="1" class="c47" colspan="1" rowspan="1">Width</td>
+<td markdown="1" class="c39" colspan="1" rowspan="1">Bit Pos</td>
+<td markdown="1" class="c69 c76" colspan="1" rowspan="1">Bit Definition</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c56" colspan="1" rowspan="7">DOE Status Register</td>
+<td markdown="1" class="c64" colspan="1" rowspan="7">32 bits</td>
+<td markdown="1" class="c43" colspan="1" rowspan="1">0</td>
+<td markdown="1" class="c69" colspan="1" rowspan="1">DOE Busy</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">1</td>
+<td markdown="1" class="c69" colspan="1" rowspan="1">DOE Interrupt Status</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">2</td>
+<td markdown="1" class="c69" colspan="1" rowspan="1">DOE Error</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">3</td>
+<td markdown="1" class="c69" colspan="1" rowspan="1">DOE Async Message Status</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">4</td>
+<td markdown="1" class="c69" colspan="1" rowspan="1">
+&lt;TBD&gt;
+</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">30:5</td>
+<td markdown="1" class="c69" colspan="1" rowspan="1">Reserved</td>
+</tr>
+<tr markdown="1" class="c21">
+<td markdown="1" class="c43" colspan="1" rowspan="1">31</td>
+<td markdown="1" class="c69" colspan="1" rowspan="1">DOE Object Ready</td>
+</tr>
+</table>
+
+### DOE Write Data Mailbox Register
+
+Address Offset 0x10
+
+Please refer to Table 7-317 in the PCIe specification for details on this register.
+
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><p>Register</p></td>
+<td><p>Width</p></td>
+<td><p>Bit Pos</p></td>
+<td><p>Bit Definition</p></td>
+</tr>
+<tr class="even">
+<td><p>DOE Write Data Mailbox Register </p></td>
+<td><p>32 bits</p></td>
+<td><p>31:0</p></td>
+<td><p>DOE Write Data DWORD</p></td>
+</tr>
+</tbody>
+</table>
+
+### DOE Read Data Mailbox Register
+
+Address Offset 0x14
+
+Please refer to Table 7-317 in the PCIe specification for details on this register.
+
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><p>Register</p></td>
+<td><p>Width</p></td>
+<td><p>Bit Pos</p></td>
+<td><p>Bit Definition</p></td>
+</tr>
+<tr class="even">
+<td><p>DOE Read Data Mailbox Register </p></td>
+<td><p>32 bits</p></td>
+<td><p>31:0</p></td>
+<td><p>DOE Read Data DWORD</p></td>
+</tr>
+</tbody>
+</table>
+
 OpenTitan Internal DOE Registers
 --------------------------------
 
