@@ -1,5 +1,4 @@
-# OpenTitan Secure Mailbox Interface
-# (secure\_mailbox\_spec)
+# OpenTitan Secure Mailbox Interface (secure_mailbox_spec)
 
 Contributor: [Neeraj Upasani](mailto:neeraj@opentitan.org)
 
@@ -16,18 +15,12 @@ Table of Contents
 
 Introduction
 ================================================
-
-Scope
-------------------------------
+## Scope
 
 Document a proposal for the secure mailbox communication channel for the
 Integrated OpenTitan project
 
-Document Organization
-----------------------------------------------
-
-Glossary
----------------------------------
+## Glossary
 
 | Term  | Description                                             |
 |-------|---------------------------------------------------------|
@@ -47,8 +40,7 @@ Glossary
 | ECR   | Engineering Change Request                              |
 | ECN   | Engineering Change Notification                         |
 
-References
------------------------------------
+## References
 
 | OpenTitan Documentation                           | https://docs.opentitan.org/                                               |
 |---------------------------------------------------|---------------------------------------------------------------------------|
@@ -63,16 +55,14 @@ References
 | SPDM-MCTP                                         | https://www.dmtf.org/dsp/DSP0275                                          |
 | Secured SPDM                                      | https://www.dmtf.org/dsp/DSP0277                                          |
 
-Version History
-----------------------------------------
+## Version History
 
 | Version | Description                                                 | Authors                              |
 |---------|-------------------------------------------------------------|--------------------------------------|
 | 0.1     | Initial version                                             | Ved Shanbhogue Ricky Wen (Rivos Inc) |
 | 0.2     | Added Context behind DOE Object definition Interrupt tweaks | Neeraj Upasani (Rivos Inc)           |
 
-Overview
-========
+## Overview
 
 The integrated version of OpenTitan Root-Of-Trust may
 provide security services to the SoC such as:
@@ -105,15 +95,11 @@ newly defined OpenTitan mailbox interface. Mailbox interface is used to
 pass pointers to data blobs external  to the OT RoT and  request
 operations via pre-defined command  objects .
 
-Secure Mailbox Interface
-=======================================================
+## Secure Mailbox Interface
 
 ![](doc/mbx_interface.svg)
 
-### Data Object Exchange Mailbox Instance
-
-Mailbox Terminology
---------------------------------------------
+### Mailbox Terminology
 
 | OT Mailbox registers (Inbox regs / Outbox regs) | PCIe DOE specification defined registers used for reading and writing to the mailbox. See PCI Express Base Specification 6.0 section 7.9.24 Note that these registers may be mapped into the PCIe Config space for the System Host to access the mailbox via the PCIe defined mechanism Accesses from other SoC firmware based agents may not be mapped into the config address space. The access mechanism and relevant address space for such agents is defined by the SoC integrator              |
 | OT Inbox Memory                                 | Memory is allocated to the mailbox mechanism to store data objects passed from System/SoC mailbox  writer  to OT. Memory within the OpenTitan RoT secure perimeter. Please refer to the section below for   inbox memory implementation options System/SoC mailbox  writer  can write this memory via mailbox interface registers only. OT Ibex core may have direct read/write access to this memory                                                                                                |
@@ -123,7 +109,7 @@ Mailbox Terminology
 | Requester                                       | Typically System Host or an SoC firmware agent that would request a security service via predefined DOE objects                                                                                                                                                                                                                                                                                                                                                                                      |
 | Responder                                       | Entity that processes the DOE request object and generates a DOE response in case one is expected for the original request. OpenTitan would generally have the responder role; however there may be use cases where OpenTitan is a DOE requester                                                                                                                                                                                                                                                     |
 
-### Mailbox memory Options
+### Mailbox Memory Options
 
 Mailbox memory implementation shall have the following options
 
@@ -134,8 +120,7 @@ Mailbox memory implementation shall have the following options
 | Shared Mailbox Memory On RoT Fabric (separate instance than RoT private memory)                             | Memory access arbitration handled by fabricEasier to implement memory protection schemes such as scrambling, if desiredEasy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode)                                            | Mailbox port is an initiator port on the fabric; requires additional security access control mechanisms such as IOPMP (access range protection registers etc) |
 | Shared Mailbox Memory carved out of RoT private memory)Note  that this option is not preferred              | Easier to manage memory size requirements - (flexible range setup)                                                                                                                                                                                                   | Hard address decode based prevention of IBEX instruction fetch from this memory not possible - mixed with IBEX code memory                                    |
 
-Mailbox Basics
-----------------------------------------
+### Mailbox Basics
 
 -   PCIe specification section 6.30 defines the
     (optional) Data Object Exchange mechanism. It is accessed using a
@@ -251,8 +236,7 @@ Note : Please refer to [PCIE Specification](https://members.pcisig.com/wg/PCI-SI
 for more detailed and up to date information
 on the PCIe compliant DOE Mailbox operation basics
 
-Integrated OpenTitan Usage Of DOE Mailbox Mechanism
-----------------------------------------------------------------------------
+### Integrated OpenTitan Usage Of DOE Mailbox Mechanism
 
 Integrated OpenTitan
 
@@ -327,10 +311,9 @@ Integrating SoC
         management controllers may acquire a software mutex or a hardware
         mutex, as defined and implemented by SoC
 
-Mailbox Use Cases
------------------
+### Mailbox Use Cases
 
-### Interprocessor Communication
+#### Interprocessor Communication
 
 A basic usage of the DOE mailbox mechanism is to
 achieve Interprocessor communication (IPC) between the OpenTitan based
@@ -362,7 +345,7 @@ relationship, and may require communication to perform different
 operations. A dedicated DOE mailbox channel and predefined DOE objects
 may be assigned for such communication
 
-### System level use cases
+#### System level use cases
 
 DOE mailbox is used to perform various security
 protocols like SPDM based component measurement and authentication.
@@ -419,13 +402,7 @@ defined DOE objects supporting such information exchange is envisioned
 to be the method to expose these security services to other
 components
 
-Security Properties
-----------------------------------------------------------------------------------
-
-&lt;To be Worked on&gt;
-
-Data Object Definition
------------------------------------------------
+## Data Object Definition
 
 ### PCIe defined
 
@@ -454,10 +431,11 @@ Notes :
 4.  The objects highlighted in red are part of a PCIe
     ECR that is not in the main specification yet
 
-------------------------------------------------------------------------
+### OT defined
 
-External DOE Registers
------------------------
+An example DOE mapping for integrated OpenTitan can be found [here](./doc/DOE.md)
+
+## External DOE Registers
 
 Note : The DOE mailbox is accessible in two different forms
 
@@ -581,8 +559,7 @@ Please refer to Table 7-317 in the PCIe specification for details on this regist
 |---------|---------------------|-------|
 | 0:31    | DOE Read Data DWORD |       |
 
-OpenTitan Internal DOE Registers
---------------------------------
+## OpenTitan Internal DOE Registers
 
 The following registers are visible in the OT internal private address
 space only. As such, these registers are accessible to the firmware
@@ -679,8 +656,7 @@ running on IBEX core only
 | 0:9     | Size           | Indicates the size of the data object to be transferred out. Written by the Responder firmware. Used by Outbox handler to track the size of the message to be read. Note that this size specifies the number of DWORDs to be read. Maximum size supported by any OT DOE instance is 1K DWORDS. (Note that maximum permitted size is 256K DWORDS) |
 | 10:31   | Reserved       |                                                                                                                                                                                                                                                                                                                                                  |
 
-Appendix
-========
+## Appendix
 
 A few important constraints from the PCIe specification for correct mailbox operation and error handling.
 Please refer to the PCIe specification section 6.30 for detailed information, specifically the sections titled:
