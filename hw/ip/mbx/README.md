@@ -1,20 +1,5 @@
 # OpenTitan Secure Mailbox Interface (secure_mailbox_spec)
 
-Contributor: [Neeraj Upasani](mailto:neeraj@opentitan.org)
-
-Reviewer: [Andreas Kurth](mailto:adk@opentitan.org) [Michael Schaffner](mailto:msf@opentitan.org)
-
-Last Update: 2022-10-04
-
-Approved by TC: 2023-05-09
-
-Status: Draft v0.2
-
-Table of Contents
-=====================================================
-
-Introduction
-================================================
 ## Scope
 
 Document a proposal for the secure mailbox communication channel for the
@@ -39,28 +24,6 @@ Integrated OpenTitan project
 | IOMMU | Input Output Memory Management Unit                     |
 | ECR   | Engineering Change Request                              |
 | ECN   | Engineering Change Notification                         |
-
-## References
-
-| OpenTitan Documentation                           | https://docs.opentitan.org/                                               |
-|---------------------------------------------------|---------------------------------------------------------------------------|
-| Integrated OpenTitan: Challenges To Solve         | Proposal Specification Link                                               |
-| Integrated OpenTitan: Access to SoC address space | Proposal Specification Link                                               |
-| Integrated OpenTitan: DMA Controller              | Proposal Specification Link                                               |
-| Integrated OpenTitan: DOE Mailbox Interface       | Proposal Specification Link                                               |
-| Integrated OpenTitan: Design for Test and Debug   | Proposal Specification Link   (Not Ready Yes)                             |
-| PCIe Specification                                | PCI Express                                                               |
-| CXL Specification                                 | Compute Express Link                                                      |
-| SPDM                                              | https://www.dmtf.org/dsp/DSP0274 (CMA requires SPDM Version 1.0 or above) |
-| SPDM-MCTP                                         | https://www.dmtf.org/dsp/DSP0275                                          |
-| Secured SPDM                                      | https://www.dmtf.org/dsp/DSP0277                                          |
-
-## Version History
-
-| Version | Description                                                 | Authors                              |
-|---------|-------------------------------------------------------------|--------------------------------------|
-| 0.1     | Initial version                                             | Ved Shanbhogue Ricky Wen (Rivos Inc) |
-| 0.2     | Added Context behind DOE Object definition Interrupt tweaks | Neeraj Upasani (Rivos Inc)           |
 
 ## Overview
 
