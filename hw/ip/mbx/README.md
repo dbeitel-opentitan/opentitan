@@ -56,26 +56,91 @@ The mailbox interface is used to pass pointers to data blobs external to the OT 
 
 ### Mailbox Terminology
 
-|                                              |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-|----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| OT Mailbox registers<br/>(Inbox/Outbox regs) | PCIe DOE specification defined registers used for reading and writing to the mailbox.<br/>See PCI Express Base Specification 6.0 section 7.9.24<br/> Note that these registers may be mapped into the PCIe Config space for the System Host to access the mailbox via the PCIe defined mechanism.<br/>Accesses from other SoC firmware based agents may not be mapped into the config address space.<br/>The access mechanism and relevant address space for such agents is defined by the SoC integrator    |
-| OT Inbox Memory                              | Memory is allocated to the mailbox mechanism to store data objects passed from System/SoC mailbox writer to OT Memory within the OpenTitan RoT secure perimeter.<br/> Please refer to the section below for inbox memory implementation options.<br/>System/SoC mailbox writer can write this memory via mailbox interface registers only.<br/>OT Ibex core may have direct read/write access to this memory.                                                                                           |
-| OT Outbox Memory                             | Memory is allocated to the mailbox mechanism to store data objects passed from OT to System/SoC mailbox reader.<br/>This memory is within the OpenTitan RoT secure perimeter; It may be a dedicated memory structure or carved out section (protected by access control) of a larger memory.<br/> System/SoC mailbox  reader  can read this memory via mailbox interface registers only.<br/>OT Ibex core may have direct read/write access to this memory.                                                  |
-| DOE mailbox instance                         | A collection of the mailbox registers, inbound mailbox memory and outbound mailbox memory that can be used to exchange objects between OT and an SoC agent.<br/>Note that a separate  mailbox instance is required for each uncoordinated SoC agent that communicates with Integrated OT via mailbox mechanism.<br/>OT may handle (read or write) objects from each DOE instance in a simple round robin arbitration fashion.<br/>Note that this is firmware controlled based on pending mailbox interrupts. |
-| Inbox / Outbox Handler                       | Hardware widget to move mailbox data back and forth between mailbox registers and corresponding memories                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Requester                                    | Typically System Host or an SoC firmware agent that would request a security service via predefined DOE objects                                                                                                                                                                                                                                                                                                                                                                                              |
-| Responder                                    | Entity that processes the DOE request object and generates a DOE response in case one is expected for the original request.<br/>OpenTitan would generally have the responder role; however there may be use cases where OpenTitan is a DOE requester.                                                                                                                                                                                                                                                        |
+- **Requester**\
+*Typically System Host or an SoC firmware agent that would request a security service via predefined DOE objects.*
 
-### Mailbox Memory Options
+- **Responder**\
+*Entity that processes the DOE request object and generates a DOE response in case one is expected for the original request.*\
+OpenTitan would generally have the responder role; however there may be use cases where OpenTitan is a DOE requester.
 
-Mailbox memory implementation shall have the following options
+- **OT Mailbox registers (Inbox/Outbox regs)**\
+*PCIe DOE specification defined registers used for reading and writing to the mailbox.*\
+These registers may be mapped into the PCIe Config space for the System Host to access the mailbox via the PCIe defined mechanism.
+Accesses from other SoC firmware based agents may not be mapped into the config address space.
+The access mechanism and relevant address space for such agents is defined by the SoC integrator.
+*(See the PCI Express Base Specification 6.0 section 7.9.24 for further details.)*
 
-| Option                                                                                                      | Pros                                                                                                                                                                                                                                                                         | Cons                                                                                                                                                          |
-|-------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Dedicated Memory within mailbox instance                                                                    | Each mailbox instance has access to its own inbox memory space.<br/>No memory arbitration required when mailbox is written.<br/>Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode)                                           | Difficult to implement memory protection mechanisms such as scrambling                                                                                        |
-| Shared Mailbox Memory - local write port, read access by memory (separate instance than RoT private memory) | Easier to implement memory protection schemes such as scrambling, if desired.<br/>Mailboxes not an initiator on TL-UL fabric; additional access control not required.<br/>Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode) | Memory controller may need dedicated arbitration logic                                                                                                        |
-| Shared Mailbox Memory On RoT Fabric (separate instance than RoT private memory)                             | Memory access arbitration handled by fabricEasier to implement memory protection schemes such as scrambling, if desiredEasy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode)                                                    | Mailbox port is an initiator port on the fabric; requires additional security access control mechanisms such as IOPMP (access range protection registers etc) |
-| Shared Mailbox Memory carved out of RoT private memory)Note that this option is not preferred               | Easier to manage memory size requirements - (flexible range setup)                                                                                                                                                                                                           | Hard address decode based prevention of IBEX instruction fetch from this memory not possible - mixed with IBEX code memory                                    |
+- **OT Inbox Memory**\
+*Memory within the OpenTitan RoT secure perimeter that is allocated to the mailbox mechanism to store data objects passed from System/SoC mailbox writer.*\
+System/SoC mailbox writer can write this memory via mailbox interface registers only.
+OpenTitan Ibex core may have direct read/write access to this memory.
+Please refer to the section below for inbox memory implementation options.
+
+- **OT Outbox Memory**\
+*Memory within the OpenTitan RoT secure perimeter that is allocated to the mailbox mechanism to store data objects passed from OT to System/SoC mailbox reader.*\
+System/SoC mailbox reader can read this memory via mailbox interface registers only.
+OpenTitan Ibex core may have direct read/write access to this memory.
+Please refer to the section below for outbox memory implementation options.
+
+- **DOE mailbox instance**\
+*A collection of the mailbox registers, inbound mailbox memory and outbound mailbox memory that can be used to exchange objects between OT and an SoC agent.*\
+A separate mailbox instance is required for each uncoordinated SoC agent that communicates with Integrated OpenTitan via the mailbox mechanism.
+OpenTitan may arbitrate between (read or write) objects from each DOE mailbox instance in a simple round robin fashion.
+Note that this is firmware controlled based on pending mailbox interrupts.
+
+- **Inbox / Outbox Handler**\
+*Hardware widget to move mailbox data back and forth between mailbox registers and corresponding memories.*
+
+### Mailbox Memory Topology Options
+
+The following options for memory topologies should be considered for a mailbox implementation:
+
+#### **Dedicated Memory within mailbox instance**
+
+| Topology: Dedicated Memory within mailbox instance |
+|----------------------------------------------------|
+| ![](doc/dedicated_memory.svg)                      |
+
+| Pros                                                                                                                                                                                                                                                         | Cons                                                                                      |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| <ul><li>Each mailbox instance has access to its own inbox memory space.</li><li>No memory arbitration required when mailbox is written.</li><li>Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode)</li></ul> | <ul><li>Difficult to implement memory protection mechanisms such as scrambling.</li></ul> |
+
+#### **Shared Mailbox Memory within mailbox wrapper**
+
+| Topology: Shared Mailbox Memory within mailbox wrapper |
+|--------------------------------------------------------|
+| ![](doc/local_shared_memory.svg)                       |
+
+- local write port, read access by memory
+- (separate instance than RoT private memory)
+
+| Pros                                                                                                                                                                                                                                                                                                    | Cons                                                                      |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| <ul><li>Easier to implement memory protection schemes such as scrambling, if desired.</li><li>Mailboxes not an initiator on TL-UL fabric; additional access control not required.</li><li>Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode).</li></ul> | <ul><li>Memory controller may need dedicated arbitration logic.</li></ul> |
+
+#### **Shared Mailbox Memory On RoT Fabric**
+
+| Topology: Shared Mailbox Memory On RoT Fabric |
+|-----------------------------------------------|
+| ![](doc/separate_shared_memory.svg)           |
+
+- (separate instance than RoT private memory)
+
+| Pros                                                                                                                                                                                                                                                          | Cons                                                                                                                                                                            |
+|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| <ul><li>Memory access arbitration handled by fabric</li><li>Easier to implement memory protection schemes such as scrambling, if desired</li><li>Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode)</li></ul> | <ul><li>Mailbox port is an initiator port on the fabric; requires additional security access control mechanisms such as IOPMP (access range protection registers etc)</li></ul> |
+
+#### **Shared Mailbox Memory (carved out of existing RoT memory)**
+
+| Topology: Shared Mailbox Memory (carved out of existing RoT memory) |
+|---------------------------------------------------------------------|
+| ![](doc/carved_shared_memory.svg)                                   |
+
+- *Note that this option is not preferred*
+
+| Pros                                                                               | Cons                                                                                                                                         |
+|------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+| <ul><li>Easier to manage memory size requirements (flexible range setup)</li></ul> | <ul><li>Hard address decode based prevention of IBEX instruction fetch from this memory not possible (mixed with IBEX code memory)</li></ul> |
 
 ### Mailbox Basics
 
@@ -244,7 +309,7 @@ An example DOE mapping for integrated OpenTitan can be found [here](./doc/DOE.md
 
 ## External DOE Registers
 
-Note : The DOE mailbox is accessible in two different forms:
+Note: The DOE mailbox is accessible in two different forms:
 
 1. PCIe compatible DOE mailbox - exposed as part of the PCIe configuration space.\
 The [DOE Extended Capability Header](#doe-extended-capability-header) and the [DOE Capability Header](#doe-capability-header) registers are supported for such a DOE mailbox instance only.
