@@ -41,13 +41,13 @@ The integrated version of OpenTitan Root-Of-Trust may provide security services 
 - SoC security monitoring / book-keeping services.
 - Debug authentication / unlock service.
 
-The SoC Host (or other SoC Execution Engines) may request these services from the OpenTitan.
+The SoC Host (or other SoC Execution Engines) may request these services from OpenTitan.
 This means that pre-defined control information must be passed to OpenTitan from the security service requester.
 
-A secure in-bound/outbound mailbox is defined to exchange such control information between.
-This proposal adopts the  [PCIe specification defined Data-Object-Exchange](https://members.pcisig.com/wg/PCI-SIG/document/18363) mailbox protocol as the OpenTitan Integrated mailbox communication channel.
+A secure inbound/outbound mailbox is defined to enable the exchange of such control information between the root-of-trust and the security service requester.
+This proposal adopts the [PCIe specification defined Data-Object-Exchange](https://members.pcisig.com/wg/PCI-SIG/document/18363) mailbox protocol as the OpenTitan Integrated mailbox communication channel.
 
-As an example, a DMA controller shall be used in conjunction with the newly defined OpenTitan mailbox interface.
+As an example, a DMA controller may be used in conjunction with the newly defined OpenTitan mailbox interface.
 The mailbox interface is used to pass pointers to data blobs external to the OT RoT and request operations via pre-defined command objects.
 
 ## Secure Mailbox Interface
@@ -97,50 +97,64 @@ The following options for memory topologies should be considered for a mailbox i
 
 #### **Dedicated Memory within mailbox instance**
 
-| Topology: Dedicated Memory within mailbox instance |
-|----------------------------------------------------|
-| ![](doc/dedicated_memory.svg)                      |
+![](doc/dedicated_memory.svg)
 
-| Pros                                                                                                                                                                                                                                                         | Cons                                                                                      |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
-| <ul><li>Each mailbox instance has access to its own inbox memory space.</li><li>No memory arbitration required when mailbox is written.</li><li>Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode)</li></ul> | <ul><li>Difficult to implement memory protection mechanisms such as scrambling.</li></ul> |
+✅ Pros
+
+- Each mailbox instance has access to its own inbox memory space.
+- No memory arbitration required when mailbox is written.
+- Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode)
+
+❌ Cons
+
+- Difficult to implement memory protection mechanisms such as scrambling.
 
 #### **Shared Mailbox Memory within mailbox wrapper**
 
-| Topology: Shared Mailbox Memory within mailbox wrapper |
-|--------------------------------------------------------|
-| ![](doc/local_shared_memory.svg)                       |
+![](doc/local_shared_memory.svg)
 
 - local write port, read access by memory
 - (separate instance than RoT private memory)
 
-| Pros                                                                                                                                                                                                                                                                                                    | Cons                                                                      |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------|
-| <ul><li>Easier to implement memory protection schemes such as scrambling, if desired.</li><li>Mailboxes not an initiator on TL-UL fabric; additional access control not required.</li><li>Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode).</li></ul> | <ul><li>Memory controller may need dedicated arbitration logic.</li></ul> |
+✅ Pros
+
+- Easier to implement memory protection schemes such as scrambling, if desired.
+- Mailboxes not an initiator on TL-UL fabric; additional access control not required.
+- Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode).
+
+❌ Cons
+
+- Memory controller may need dedicated arbitration logic.
 
 #### **Shared Mailbox Memory On RoT Fabric**
 
-| Topology: Shared Mailbox Memory On RoT Fabric |
-|-----------------------------------------------|
-| ![](doc/separate_shared_memory.svg)           |
+![](doc/separate_shared_memory.svg)
 
 - (separate instance than RoT private memory)
 
-| Pros                                                                                                                                                                                                                                                          | Cons                                                                                                                                                                            |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| <ul><li>Memory access arbitration handled by fabric</li><li>Easier to implement memory protection schemes such as scrambling, if desired</li><li>Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode)</li></ul> | <ul><li>Mailbox port is an initiator port on the fabric; requires additional security access control mechanisms such as IOPMP (access range protection registers etc)</li></ul> |
+✅ Pros
+
+- Memory access arbitration handled by fabric.
+- Easier to implement memory protection schemes such as scrambling, if desired.
+- Easy to prevent IBEX instruction fetch port from accessing mailbox memory (prevent address decode).
+
+❌ Cons
+
+- Mailbox port is an initiator port on the fabric; requires additional security access control mechanisms such as IOPMP (access range protection registers etc).
 
 #### **Shared Mailbox Memory (carved out of existing RoT memory)**
 
-| Topology: Shared Mailbox Memory (carved out of existing RoT memory) |
-|---------------------------------------------------------------------|
-| ![](doc/carved_shared_memory.svg)                                   |
+![](doc/carved_shared_memory.svg)
 
 - *Note that this option is not preferred*
 
-| Pros                                                                               | Cons                                                                                                                                         |
-|------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
-| <ul><li>Easier to manage memory size requirements (flexible range setup)</li></ul> | <ul><li>Hard address decode based prevention of IBEX instruction fetch from this memory not possible (mixed with IBEX code memory)</li></ul> |
+✅ Pros
+
+- Easier to manage memory size requirements (flexible range setup).
+
+❌ Cons
+
+- Hard address decode based prevention of IBEX instruction fetch from this memory not possible (mixed with IBEX code memory)
 
 ### Mailbox Basics
 
@@ -168,10 +182,9 @@ It is accessed using a PCIe extended capability defined in section 7.9.24 that p
 
 Following is a basic mailbox read / write sequence:
 
-1. [DOE Status Register](#doe-status-register).\
+1. System host consults the DOE Busy bit in the [DOE Status Register](#doe-status-register) to check if the DOE instance is free..\
 Busy being Clear indicates that the mailbox instance is not being actively used and is ready to accept new requests.\
-System Host consults this bit to check if the DOE instance is free.
-2. System host writes the entire data object a DWORD at a time via the [DOE Write Data Mailbox Register](#doe-write-data-mailbox-register).
+2. System host writes the entire data object one DWORD at a time via the [DOE Write Data Mailbox Register](#doe-write-data-mailbox-register).
     - The inbox handler places each DWORD into the appropriate location of the OT inbox memory to assemble the object being transferred.
 3. System host sets the DOE Go bit in [DOE Control Register](#doe-control-register)
     - The inbox handler generates an interrupt to notify the responder (e.g. OpenTitan Ibex core) to start parsing the transferred object.
@@ -182,8 +195,8 @@ System Host consults this bit to check if the DOE instance is free.
     - DOE outbox handler generates a notification interrupt, if supported and enabled.
 5. System host waits for an interrupt if applicable.\
 Upon receiving an interrupt, it checks the [DOE Status Register](#doe-status-register).*ready* bit to see if the object is ready.\
-Alternatively, if an interrupt is not supported, it can poll for the polls the [DOE Status Register](#doe-status-register).*ready* bit.\
-Note that SoC level power management schemes and related interrupt delivery mechanism is outside the scope of this document.\
+Alternatively, if an interrupt is not supported, it polls the [DOE Status Register](#doe-status-register).*ready* bit.\
+Note that SoC level power management schemes and related interrupt delivery mechanism are outside the scope of this document.\
 Any logic required to support SoC wake from deeper power management states for interrupt delivery shall be implemented at the SoC level at the time of integration.
 6. If the ready bit is Set:
     - System host reads data from the  [DOE Read Data Mailbox Register](#doe-read-data-mailbox-register) one DWORD at a time.
@@ -196,27 +209,27 @@ Similar mechanism and sequence would apply for communication with other SoC firm
 For such a DOE mailbox instance, a fully PCIe compliant implementation is not required.
 See [below](#system-level-use-cases) for more details.
 
-**Note**: Please refer to [PCIE Specification](https://members.pcisig.com/wg/PCI-SIG/document/18363) for more detailed and up to date information on the PCIe compliant DOE Mailbox operation basics
+**Note**: Please refer to the [PCIe Specification](https://members.pcisig.com/wg/PCI-SIG/document/18363) for more detailed and up to date information on the PCIe compliant DOE Mailbox operation basics.
 
 ### Integrated OpenTitan Usage Of DOE Mailbox Mechanism
 
-Integrated OpenTitan shall :
+Integrated OpenTitan shall:
 
-- Adopt the basic mechanics defined in the PCIe specification.
+- Adopt the basic mechanisms as defined in the PCIe specification.
 - Support one or more DOE mailbox instances.
 - Support design options to allow configuration of number of mailbox instances depending upon the needs of the integrating SoC.
 - Support the following Interrupt mechanisms:
-    - Shall support a firmware based mechanism to generate an interrupt.
-    - Such a mechanism may require a method to ‘write’ to a predefined address in the appropriate address space (System, CTN or other) via the corresponding port of a DMA controller.
-    - Example: Write to a location within system address space via the [SYS port of the Integrated OT DMA controller](../dma/README.md) to generate an MSI-interrupt for PCIe compatible DOE instance(s).
-    - Shall support a wired interrupt output(s) for each DOE instance.\
+    - A firmware based mechanism to generate an interrupt.\
+Such a mechanism may require a method to ‘write’ to a predefined address in the appropriate address space (System, CTN or other) via the corresponding port of a DMA controller.\
+Example: Write to a location within system address space via the [SYS port of the Integrated OT DMA controller](../dma/README.md) to generate an MSI-interrupt for PCIe compatible DOE instance(s).
+    - Wired interrupt output(s) for each DOE instance.\
 Such a mechanism may be applied for DOE instances assigned to agents that support wired interrupt mechanism.
     - Depending upon the application & PCIe compatibility requirement for the instance, SoC may decide to use the wired interrupt or firmware based MSI interrupt mechanism at the time of SoC integration.\
 Alternatively, for PCIe compatible DOE mailbox instance, an SoC may also decide to convert the wired interrupt into an MSI via dedicated hardware support at the SoC level.
 - Not required to support a dedicated mutex mechanism for more than one agent to access the same DOE instance.
 - Object Definition; Vendor ID
 
-Integrating SoC shall :
+The integrating SoC shall:
 
 - For the DOE instance dedicated to System Host:
     - Provide the plumbing to map into PCIe Config address space.
@@ -224,12 +237,12 @@ Integrating SoC shall :
 - For mailboxes dedicated to other SoC FW agents:
     - Provide an access controlled path for the SoC FW Agent to access the DOE registers.
     - Provide the plumbing necessary to route the MSI interrupt to the appropriate location in the SoC’s relevant address space (System, CTN or otherwise).
-- Access control
-    - Shall provide proper access control protection to make sure that no requester other than the one to which the mailbox is assigned, is able to access the mailbox registers.
-    - Access control may be static or dynamic based on SoC level access mechanisms.
-- Assigning more than one coordinated requesters / agents to the same DOE instance
-    - If the SoC chooses to do so then it will be the responsibility of the cooperating agents to get ownership of the DOE mailbox in a SoC defined synchronization mechanism.
-    - Consider an example where there are more than one physical instance of SoC firmware based controllers implementing a common function like power management.\
+- For Access Control:
+    - Provide proper protection to make sure that no requester other than the one to which the mailbox is assigned, is able to access the mailbox registers.
+    - May be static or dynamic based on SoC level access mechanisms.
+- Regarding assignment of more than one coordinated requesters / agents to the same DOE instance
+    - If the SoC chooses to do so, it will be the responsibility of the cooperating agents to get ownership of the DOE mailbox in a SoC defined synchronization mechanism.\
+For example, consider the case where there is more than one physical instance of SoC firmware based controllers implementing a common function like power management.\
 In such a case, the two power management controllers may acquire a software mutex or a hardware mutex, as defined and implemented by SoC.
 
 ### Mailbox Use Cases
@@ -259,13 +272,13 @@ DOE mailbox is used to perform various security protocols like SPDM based compon
 As per the PCIe specification - “DOE is a prerequisite Extended Capability for a Function to support in-band access by system firmware/software using Configuration Requests to Component Measurement and Authentication (CMA).
 CMA in turn builds on SPDM.”
 
-#### PCIE component measurement
+#### PCIe component measurement
 
 A PCIe device, either discrete or integrated within a system, may need to establish a security trust level with the appropriate software running on the System Host for various security based applications like:
 
 - Allowing a datacenter operator to query the state of the platform via remote mechanisms before deploying any workloads to the platform.\
 Such mechanisms may involve cryptographic measurements of the hardware components including any unique device bindings and firmware running on that platform, and attestation to a local (e.g sideband management controller) or a remote (e.g. datacenter operator) agent.\
-An OpenTitan base root of trust integrated within a PCIe device may participate in such an authentication protocol, with the responsibility to create such measurements and present them to the system software upon request via a standard PCIe based DOE mailbox communication channel.
+An OpenTitan-based root of trust integrated within a PCIe device may participate in such an authentication protocol, with the responsibility to create such measurements and present them to the system software upon request via a standard PCIe based DOE mailbox communication channel.
 - Similar authentication scheme may be used for PCIe device hot plug support (adding new cards during system runtime) where the system software may decide to include the hot plugged device within its operation only upon successfully attesting to a local agent or a remote agent.
 
 #### Setup of Trusted Execution Environments
@@ -372,7 +385,7 @@ For such mailbox instances, these address offsets are utilized to specify / conf
 
 | Bit Pos | Bit Definition          | Notes                                                                                                                                                                                                                                                                                                                                                    |
 |---------|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 31:0    | Interrupt Register Data | Interrupt message data to be sent to the address configured in the [](#DOE-Interrupt-Message-Address-Register) |
+| 31:0    | Interrupt Register Data | Interrupt message data to be sent to the address configured in the [DOE Interrupt Message Address Register](#DOE-Interrupt-Message-Address-Register) |
 
 ### DOE Control Register
 
@@ -460,9 +473,9 @@ running on IBEX core only
 | Offset   | 0xFIXME                      |
 | Access   | RW                           |
 
-| Bit Pos | Bit Definition | Notes                                                                                                                                                                                                                                                                |
-|---------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0:31    | Wr Pointer     | Pointer to a location within the Inbox memory where the next DWORD will be written. Pointer is initialized to the Inbox memory base address before the start of a transfer. Inbox handler maintains the updated pointer as data DWORDS are received by the DOE inbox |
+| Bit Pos | Bit Definition | Notes                                                                                                                                                                                                                                                                 |
+|---------|----------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0:31    | Wr Pointer     | Pointer to a location within the Inbox memory where the next DWORD will be written. Pointer is initialized to the Inbox memory base address before the start of a transfer. Inbox handler maintains the updated pointer as data DWORDS are received by the DOE inbox. |
 
 ### Outbox Read Pointer Register
 
@@ -473,9 +486,9 @@ running on IBEX core only
 | Offset   | 0xFIXME                      |
 | Access   | RW                           |
 
-| Bit Pos | Bit Definition | Notes                                                                                                                                                                                                                                                                                                       |
-|---------|----------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0:31    | Rr Pointer     | Pointer to a location within the Outbox memory from where the next DWORD will be read. Pointer is initialized to the Outbox memory base address before the start of a outgoing object transfer. Outbox handler maintains the updated pointer as data DWORDS are read from the DOE instance by the requester |
+| Bit Pos | Bit Definition | Notes                                                                                                                                                                                                                                                                                                        |
+|---------|----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0:31    | Rd Pointer     | Pointer to a location within the Outbox memory from where the next DWORD will be read. Pointer is initialized to the Outbox memory base address before the start of a outgoing object transfer. Outbox handler maintains the updated pointer as data DWORDS are read from the DOE instance by the requester. |
 
 ### DOE Inbox Memory Range Base Register
 
