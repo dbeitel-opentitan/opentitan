@@ -398,14 +398,14 @@ For such mailbox instances, these address offsets are utilized to specify / conf
 
 Please refer to Table 7-315 of the PCIe specification for detailed information on this register.
 
-| Bit Pos | Bit Definition           | Notes |
-|---------|--------------------------|-------|
-| 0       | DOE Abort                |       |
-| 1       | DOE Interrupt Enable     |       |
-| 2       |                          | TBD   |
-| 3       | DOE Async Message Enable |       |
-| 4:30    | Reserved                 |       |
-| 31      | DOE Go                   |       |
+| Bit Pos | Bit Definition           | Notes                                                                                                                                                                                                                                                                                                                                          |
+|---------|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0       | DOE Abort                | Abort all data object transfer operations once a value of 1’b1 is written to this field. Reads for this field always return 0.                                                                                                                                                                                                                 |
+| 1       | DOE Interrupt Enable     | When set, DOE instance is enabled to send an interrupt. Also see the [interrupt support mechanisms here](#Integrated-OpenTitan-Usage-Of-DOE-Mailbox-Mechanism).                                                                                                                                                                                |
+| 2       |                          | TBD                                                                                                                                                                                                                                                                                                                                            |
+| 3       | DOE Async Message Enable | Adds capability for the responder to send asynchronous messages to the requester. (N.B. This capability is part of a PCIe ECR that is not in the released specification yet)                                                                                                                                                                   |
+| 4:30    | Reserved                 |                                                                                                                                                                                                                                                                                                                                                |
+| 31      | DOE Go                   | Indicates that the DOE object transferred via the [DOE Write Data Mailbox Register](#DOE-Write-Data-Mailbox-Register) is ready for consumption. Behavior is undefined if Go bit is set prior to transferring the entire object. Behavior is undefined if Go bit is set while DOE busy bit is asserted. Read of this bit always returns a zero. |
 
 ### DOE Status Register
 
@@ -418,15 +418,15 @@ Please refer to Table 7-315 of the PCIe specification for detailed information o
 
 Please refer to Table 7-316 from the PCIe specification for details on this register.
 
-| Bit Pos | Bit Definition           | Notes |
-|---------|--------------------------|-------|
-| 0       | DOE Busy                 |       |
-| 1       | DOE Interrupt Status     |       |
-| 2       | DOE Error                |       |
-| 3       | DOE Async Message Status |       |
-| 4       |                          | TBD   |
-| 5:30    | Reserved                 |       |
-| 31      | DOE Object Ready         |       |
+| Bit Pos | Bit Definition           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|---------|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0       | DOE Busy                 | This bit is set by the DOE instance when it is busy processing a received data object. When set, indicates that the DOE Instance is busy and cannot accept a new data object via the [DOE Write Data Mailbox Register](#DOE-Write-Data-Mailbox-Register). This bit must be set by the DOE instance while processing an abort command. Cleared when abort handling is complete.                                                                                   |
+| 1       | DOE Interrupt Status     | An interrupt, if enabled, is generated to indicate that a data object (response) is ready for the requester to be consumed or DOE error is set, or DOE busy bit is cleared (i.e. ready to accept new objects). This bit is set when such an interrupt is asserted. Bit is a write-1-to-clear bit i.e. writing a value of 1 to this bit clears the status bit.                                                                                                    |
+| 2       | DOE Error                | Set by the DOE instance if an internal error occurs with processing of a received data object or an unsupported data object. Bit is cleared by writing a 1’b1 to the DOE abort bit in the [DOE Control Register](#doe-control-register). DOE Abort is the only mechanism to clear this status bit.                                                                                                                                                               |
+| 3       | DOE Async Message Status | Set by the responder when there are one or more asynchronous messages ready to be transferred to the requester. Note that this capability is part of a PCIe ECR that is not in the released specification yet.                                                                                                                                                                                                                                                   |
+| 4       |                          | TBD                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 5:30    | Reserved                 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| 31      | DOE Object Ready         | Indicates that the DOE object (response) is ready to be ready by the System Host via the [DOE Read Data Mailbox Register](#DOE-Read-Data-Mailbox-Register). DOE instance shall clear this bit once the entire data object is ready by system software and no further objects are ready for transfer. DOE instance shall clear this bit in response to a DOE Abort handling, if not already clear. Read of this bit always returns a zero. Default value is 1’b0. |
 
 ### DOE Write Data Mailbox Register
 
@@ -439,9 +439,9 @@ Please refer to Table 7-316 from the PCIe specification for details on this regi
 
 Please refer to Table 7-317 in the PCIe specification for details on this register.
 
-| Bit Pos | Bit Definition       | Notes |
-|---------|----------------------|-------|
-| 0:31    | DOE Write Data DWORD |       |
+| Bit Pos | Bit Definition       | Notes                                                                                                                                                                                                                                                                                                                                           |
+|---------|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0:31    | DOE Write Data DWORD | A DOE object is transferred to a DOE instance by writing to this register 1 DWORD at a time. A successful write adds one DWORD to the data object being assembled in the DOE instance. A write of 1’b1 to the DOE Go bit in the DOE Control Register marks the completion of the data transfer i.e final DWORD for the object has been written. |
 
 ### DOE Read Data Mailbox Register
 
@@ -454,9 +454,9 @@ Please refer to Table 7-317 in the PCIe specification for details on this regist
 
 Please refer to Table 7-317 in the PCIe specification for details on this register.
 
-| Bit Pos | Bit Definition      | Notes |
-|---------|---------------------|-------|
-| 0:31    | DOE Read Data DWORD |       |
+| Bit Pos | Bit Definition      | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+|---------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 0:31    | DOE Read Data DWORD | A DOE object is read by system software from a DOE instance by reading this register 1 DWORD at a time, once the DOE Object Ready bit is set by the DOE instance in the DOE status register. A write of any value to this register indicates a successful read of the current DWORD. The following read from this register shall return to the next DWORD from the data object being read. Back to back data objects can be transferred while the DOE Object ready bit is set. If Data Object Ready bit is clear, writes of any value to this register must have no effect and a read from this register must return zeros. |
 
 ## OpenTitan Internal DOE Registers
 
