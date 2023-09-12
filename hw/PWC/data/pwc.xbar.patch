@@ -1,0 +1,36 @@
+#
+# new hosts
+# --------------------------------------------
+### MBOX --> [SRAM]
+mbx.hst
+  ## access go-to list
+  + sram_ctrl_mbox.ram
+
+### DMA --> [SRAM]
+dma.hst
+  ## access go-to list
+  + sram_ctrl_main.ram
+
+#
+# new devices
+# --------------------------------------------
+### [IBEX] --> MBOX 
+mbx.dev
+  ## MBX can be accessed by the following hosts
+  + rv_core_ibex.cored
+  = {base,size}: 0xdead_beef + 0xdead_beef
+
+### [IBEX] --> DMA
+dma.dev
+  ## DMA can be accessed by the following hosts
+  + rv_core_ibex.cored
+  ## space holder
+  = {base,size}: 0xdead_beef + 0xdead_beef
+
+### [IBEX, DMA] --> EXTR I/F 
+extr.dev
+  ## SCX/CTN can be accessed by the following hosts
+  + rv_core_ibex.corei
+  + rv_core_ibex.cored
+  + dma.hst
+  = {base,size}: 0xdead_beef + 0xdead_beef

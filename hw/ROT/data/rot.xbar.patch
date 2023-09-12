@@ -1,0 +1,76 @@
+#
+# new hosts
+# --------------------------------------------
+### MBX --> [SRAM]
+mbx.hst
+  ## access go-to list
+  + sram_ctrl_mbox.ram
+
+### DMA --> [SRAM]
+dma.hst
+  ## access go-to list
+  + rom_ctrl0.rom
+  + rom_ctrl0.regs
+  + rom_ctrl1.rom
+  + rom_ctrl1.regs
+  + sram_ctrl_main.ram
+  + sram_ctrl_main.regs
+  + rv_dm.mem
+  + rv_dm.regs
+  ## [peri] + spi_host0
+  + aes
+  + hmac
+  + kmac
+  + otbn
+  + keymgr
+  + csrng
+  + entropy_src
+  + edn0
+  + edn1
+  + rv_core_ibex.cfg
+  + rv_plic
+  ## peri covers all the peri-devices
+  + peri
+  ## [peri] + uart0
+  ## [peri] + spi_device
+
+#
+# new devices
+# --------------------------------------------
+### [IBEX] --> MBX
+mbx.dev
+  ## access coming from list
+  + rv_core_ibex.cored
+  = {base,size}: 0xdead_beef + 0xdeaf_beef
+
+### [IBEX] --> DMA
+dma.dev
+  ## access coming from list
+  + rv_core_ibex.cored
+  ## space holder
+  = {base,size}: 0xdead_beef + 0xdeaf_beef
+
+dbgctlhstreg.dev
+  ## access coming from list
+  + rv_core_ibex.cored
+  = {base,size}: 0xdead_beef + 0xdeaf_beef
+
+dbgctlmbxmem.dev
+  ## access coming from list
+  + rv_core_ibex.cored
+  = {base,size}: 0xdead_beef + 0xdeaf_beef
+
+## ### [IBEX] --> Private HDR
+## hdr.dev
+##   ## access coming from list
+##   + rv_core_ibex.cored
+##   ## space holder
+##   = {base,size}: 0xdead_beef + 0xdeaf_beef
+
+### [IBEX, DMA] --> EXTR I/F
+extr.dev
+  ## access coming from list
+  + rv_core_ibex.corei
+  + rv_core_ibex.cored
+  + dma.hst
+  = {base,size}: 0xdead_beef + 0xdeaf_beef

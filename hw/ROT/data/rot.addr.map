@@ -1,0 +1,44 @@
+## (0*256M)
+rom_ctrl0.rom       = 0x0000_0000 + 0x0_8000
+rom_ctrl1.rom       = 0x0001_0000 + 0x1_0000
+rv_dm.rom           = x0004_0000 + 0x0_1000
+
+## (1*256M)
+sram_ctrl_main.ram  = 0x1000_0000 + 0x4_0000
+sram_ctrl_mbox.ram  = 0x1100_0000 + 0x0_1000
+
+## (2*256M)
+## 16M for PLIC, 16K for OTBN and 4K each for others
+aes                 = 0x2110_0000 + 0x0_1000
+hmac                = 0x2111_0000 + 0x0_1000
+kmac                = 0x2112_0000 + 0x0_1000
+otbn                = 0x2113_0000 + 0x1_0000
+keymgr              = 0x2114_0000 + 0x0_1000
+csrng               = 0x2115_0000 + 0x0_1000
+entropy_src         = 0x2116_0000 + 0x0_1000
+edn0                = 0x2117_0000 + 0x0_1000
+edn1                = 0x2118_0000 + 0x0_1000
+sram_ctrl_main.regs = 0x211c_0000 + 0x0_1000
+sram_ctrl_mbox.regs = 0x211d_0000 + 0x0_1000
+rom_ctrl0.regs      = 0x211e_0000 + 0x0_1000
+rom_ctrl1.regs      = 0x211e_1000 + 0x0_1000
+rv_core_ibex.cfg    = 0x211f_0000 + 0x0_1000
+rv_dm.regs          = 0x2120_0000 + 0x0_1000
+## 0x22 for RIVOS's design
+mbx.dev             = 0x2200_0000 + 0x0_0800
+## dmimbx.hstreg
+dbgctlhstreg.dev       = 0x2200_0800 + 0x0_0100
+dma.dev             = 0x2201_0000 + 0x0_1000
+## dmimbx.mem (2KB)
+dbgctlmbxmem.dev       = 0x2202_0000 + 0x0_0800
+## hdr.dev             = 0x2202_0000 + 0x0_1000
+rv_plic             = 0x2800_0000 + 0x800_0000
+
+## (3*256M)
+# - need to match the specified address in build.hjson
+peri                = 0x3000_0000 + 0x20_0000
+spi_host0           = 0x3030_0000 + 0x00_1000
+peri                = 0x3040_0000 + 0x40_0000
+
+## >= 1G + 3G
+extr.dev            = 0x4000_0000 + 0xc000_0000

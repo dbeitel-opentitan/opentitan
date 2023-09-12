@@ -1,0 +1,14 @@
+[
+  uart1
+  uart2
+  uart3
+  i2c1
+  i2c2
+  spi_host1
+  usbdev
+  sysrst_ctrl_aon
+  adc_ctrl_aon
+  sensor_ctrl
+  soc_proxy
+  flash_ctrl
+]

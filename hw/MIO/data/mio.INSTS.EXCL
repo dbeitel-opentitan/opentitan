@@ -1,0 +1,30 @@
+[
+  uart0
+  uart1
+  uart2
+  uart3
+  spi_device
+  i2c0
+  i2c1
+  i2c2
+  otp_ctrl
+  lc_ctrl
+  spi_host0
+  spi_host1
+  usbdev
+  sysrst_ctrl_aon
+  adc_ctrl_aon
+  sensor_ctrl
+  soc_proxy
+  flash_ctrl
+  aes
+  hmac
+  kmac
+  keymgr
+  csrng
+  entropy_src
+  edn0
+  edn1
+  rom_ctrl0
+  rom_ctrl1
+]

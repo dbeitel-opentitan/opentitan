@@ -1,0 +1,13 @@
+{ name: 'pwc',
+  pinout: {
+    remove_ports: [],
+    remove_pads: [],
+    add_pads: [
+        ],
+  },
+
+  pinmux: {
+    special_signals: [
+    ],
+  }
+}

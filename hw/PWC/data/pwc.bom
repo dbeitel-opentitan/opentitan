@@ -1,0 +1,42 @@
+ast
+rstmgr_aon
+pwrmgr_aon
+clkmgr_aon
+
+## otp_ctrl
+## lc_ctrl
+
+rv_core_ibex
+rv_timer
+rv_plic
+## rv_dm can't be removed
+rv_dm
+## rom_ctrl0
+## rom_ctrl1
+sram_ctrl_main
+sram_ctrl_mbox
+sram_ctrl_ret_aon
+
+## aes
+## hmac
+## kmac
+## edn0
+## edn1
+## otbn can't be removed??
+otbn
+## csrng
+## keymgr
+## entropy_src
+
+alert_handler
+aon_timer_aon
+
+## i2c0
+## i2c1
+gpio
+## uart0
+## FIXME:
+## rvs.topgen.noflash.py
+## - Generation with zero MIO/DIO pads is currently not supported
+## spi_host0
+pinmux_aon

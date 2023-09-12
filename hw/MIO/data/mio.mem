@@ -1,0 +1,29 @@
+## rom_ctrl0.rom
+##   ## 8*4K=32K
+##   base = 0x00000
+##   size = 0x08000
+## 
+## rom_ctrl1.rom
+##   ## 1*64K=64K
+##   base = 0x10000
+##   size = 0x10000
+
+rv_dm.mem
+  ## 1*4K=4K
+  base = 0x40000
+  size = 0x1000
+
+sram_ctrl_main.ram
+  ## 4*64K=256K
+  base = 0x10000000
+  size = 0x40000
+
+sram_ctrl_mbox.ram
+  ## 1*4K=4K
+  base = 0x11000000
+  size = 0x1000
+
+sram_ctrl_ret_aon.ram
+  ## 1*4K=4K
+  base = 0x40600000
+  size = 0x1000
